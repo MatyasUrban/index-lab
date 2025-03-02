@@ -1,0 +1,101 @@
+# Index Types in PostgreSQL
+
+PostgreSQL offers a variety of index types, each designed for specific use cases. Understanding these different types will help you choose the right index for your specific needs.
+
+## B-tree Indexes
+
+B-tree (Balanced Tree) is the default index type in PostgreSQL and the most commonly used.
+
+### When to use B-tree indexes:
+
+- For columns used in equality comparisons (`=`)
+- For range queries (`<`, `>`, `BETWEEN`, etc.)
+- For `LIKE` queries with a constant prefix (e.g., `LIKE 'abc%'`)
+- For `IN` operations
+- For sorting operations (`ORDER BY`)
+
+```sql
+CREATE INDEX idx_users_email ON users(email);
+```
+
+## Hash Indexes
+
+Hash indexes are optimized specifically for equality comparisons.
+
+### When to use Hash indexes:
+
+- Only for simple equality operations (`=`)
+- When you don't need range queries or sorting
+
+```sql
+CREATE INDEX idx_users_status USING HASH ON users(status);
+```
+
+## GiST Indexes (Generalized Search Tree)
+
+GiST indexes are versatile and support various data types and operations.
+
+### When to use GiST indexes:
+
+- For geometric data types (points, lines, polygons)
+- For full-text search (though GIN is often better)
+- For range types
+- For nearest-neighbor searches
+
+```sql
+CREATE INDEX idx_locations USING GIST ON locations(coordinates);
+```
+
+## GIN Indexes (Generalized Inverted Index)
+
+GIN indexes are designed for handling cases where multiple values are stored in a single column.
+
+### When to use GIN indexes:
+
+- For array columns
+- For JSON/JSONB data
+- For full-text search
+- When indexing multiple values in a single column
+
+```sql
+CREATE INDEX idx_documents_tags USING GIN ON documents(tags);
+```
+
+## BRIN Indexes (Block Range INdex)
+
+BRIN indexes store summary information about ranges of blocks in a table.
+
+### When to use BRIN indexes:
+
+- For very large tables (millions of rows)
+- When data is naturally ordered (timestamps, sequential IDs)
+- When you need smaller indexes with acceptable performance trade-offs
+
+```sql
+CREATE INDEX idx_logs_timestamp USING BRIN ON logs(created_at);
+```
+
+## SP-GiST Indexes (Space-Partitioned GiST)
+
+SP-GiST supports partitioned search trees.
+
+### When to use SP-GiST indexes:
+
+- For non-balanced data structures
+- For quad-trees, k-d trees, and radix trees
+- For IP address ranges
+
+```sql
+CREATE INDEX idx_network USING SPGIST ON networks(ip_range);
+```
+
+## Choosing the Right Index
+
+Selecting the appropriate index type depends on:
+
+1. The data type you're indexing
+2. The types of queries you'll run
+3. The size of your data
+4. The write/read ratio of your application
+
+Remember that indexes improve read performance but can slow down write operations. Always test your indexes with realistic data volumes and query patterns. 

@@ -1,0 +1,102 @@
+# Query Planning and Execution
+
+Understanding how PostgreSQL plans and executes queries is essential for optimizing database performance. This knowledge helps you create effective indexes and write efficient queries.
+
+## The Query Execution Process
+
+When you submit a SQL query to PostgreSQL, it goes through several stages:
+
+1. **Parsing**: The SQL text is checked for syntax errors and converted to a parse tree
+2. **Rewriting**: The query is transformed according to rules (e.g., view expansion)
+3. **Planning**: The query planner/optimizer generates possible execution plans
+4. **Execution**: The most efficient plan is executed to retrieve or modify data
+
+## The Query Planner
+
+The query planner's job is to find the most efficient way to execute your query. It:
+
+- Estimates the cost of different execution strategies
+- Considers available indexes
+- Evaluates different join methods and orders
+- Chooses the plan with the lowest estimated cost
+
+## EXPLAIN: Your Window into Query Planning
+
+The `EXPLAIN` command shows you how PostgreSQL plans to execute a query:
+
+```sql
+EXPLAIN SELECT * FROM users WHERE email = 'user@example.com';
+```
+
+Adding the `ANALYZE` option actually executes the query and shows real timing:
+
+```sql
+EXPLAIN ANALYZE SELECT * FROM users WHERE email = 'user@example.com';
+```
+
+## Understanding EXPLAIN Output
+
+Let's look at a simple example:
+
+```
+EXPLAIN ANALYZE SELECT * FROM users WHERE email = 'user@example.com';
+
+                                                  QUERY PLAN
+--------------------------------------------------------------------------------------------------------------
+ Index Scan using idx_users_email on users  (cost=0.29..8.31 rows=1 width=72) (actual time=0.019..0.021 rows=1 loops=1)
+   Index Cond: (email = 'user@example.com'::text)
+ Planning Time: 0.152 ms
+ Execution Time: 0.048 ms
+```
+
+Key components:
+- **Node type**: "Index Scan" indicates PostgreSQL is using an index
+- **Cost**: Estimated startup cost (0.29) and total cost (8.31)
+- **Rows**: Estimated number of rows to be returned
+- **Actual time**: Real execution time (when using ANALYZE)
+- **Loops**: Number of iterations
+
+## Common Scan Types
+
+- **Sequential Scan**: Reads the entire table (no index used)
+- **Index Scan**: Uses an index to look up specific rows
+- **Index Only Scan**: Retrieves data directly from the index (most efficient)
+- **Bitmap Scan**: Uses an index to create a bitmap of matching rows, then fetches those rows
+
+## Join Methods
+
+When joining tables, PostgreSQL can use different methods:
+
+- **Nested Loop Join**: Good for small tables or when one table is filtered to few rows
+- **Hash Join**: Efficient for large tables without suitable indexes
+- **Merge Join**: Works well when both tables are sorted on the join columns
+
+## How Indexes Affect Query Planning
+
+Indexes influence the planner by:
+
+1. Providing efficient access paths to data
+2. Enabling index-only scans when all needed data is in the index
+3. Supporting efficient sorting and grouping operations
+4. Allowing for optimized join operations
+
+## Statistics and the Query Planner
+
+PostgreSQL maintains statistics about your tables to help the planner make good decisions:
+
+- Distribution of values in columns
+- Number of distinct values
+- Most common values
+
+These statistics are updated by the `ANALYZE` command, which runs automatically with autovacuum.
+
+## Optimizing Queries with Indexes
+
+To help the query planner choose indexes effectively:
+
+1. Make sure your statistics are up-to-date (`ANALYZE`)
+2. Create indexes on columns used in WHERE, JOIN, and ORDER BY clauses
+3. Consider composite indexes for queries that filter on multiple columns
+4. Use EXPLAIN to verify that your indexes are being used as expected
+
+Remember that the best index strategy depends on your specific workload and query patterns. 
