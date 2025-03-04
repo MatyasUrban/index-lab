@@ -295,7 +295,7 @@ export default function SQLPracticePage({ item }: SQLPracticePageProps) {
                     </div>
                   )}
 
-                  {result.correct && (
+                  {result.correct && result.usersTime !== undefined && result.referenceTime !== undefined && (
                     <div className="mt-4">
                       <h4 className="text-sm font-medium mb-2">Execution time</h4>
                       <div className="grid grid-cols-2 gap-4 w-full max-w-[300px] mx-auto">
@@ -304,7 +304,7 @@ export default function SQLPracticePage({ item }: SQLPracticePageProps) {
                           <div
                             className="w-16 bg-blue-500"
                             style={{
-                              height: `${(result.usersTime! / Math.max(result.usersTime!, result.referenceTime!)) * 100}%`,
+                              height: `${(result.usersTime / Math.max(result.usersTime, result.referenceTime)) * 100}%`,
                             }}
                           ></div>
                         </div>
@@ -312,17 +312,17 @@ export default function SQLPracticePage({ item }: SQLPracticePageProps) {
                           <div
                             className="w-16 bg-blue-500"
                             style={{
-                              height: `${(result.referenceTime! / Math.max(result.usersTime!, result.referenceTime!)) * 100}%`,
+                              height: `${(result.referenceTime / Math.max(result.usersTime, result.referenceTime)) * 100}%`,
                             }}
                           ></div>
                         </div>
                         {/* Labels */}
                         <div className="text-center">
-                          <p className="font-bold">{result.usersTime}ms</p>
+                          <p className="font-bold">{result.usersTime.toFixed(3)}ms</p>
                           <p className="text-sm">Your solution</p>
                         </div>
                         <div className="text-center">
-                          <p className="font-bold">{result.referenceTime}ms</p>
+                          <p className="font-bold">{result.referenceTime.toFixed(3)}ms</p>
                           <p className="text-sm">Reference solution</p>
                         </div>
                       </div>
@@ -447,7 +447,9 @@ graph TD;
           </DialogHeader>
           <div className="p-4">
             <div className="border p-4 rounded-md bg-white">
-              <pre className="text-xs overflow-auto whitespace-pre-wrap">{result?.usersPlan}</pre>
+              <pre className="text-xs overflow-auto whitespace-pre-wrap">
+                {result?.usersPlan ? JSON.stringify(result.usersPlan, null, 2) : 'No plan available'}
+              </pre>
             </div>
           </div>
         </DialogContent>

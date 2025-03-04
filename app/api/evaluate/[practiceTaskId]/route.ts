@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { EvaluateRequestBody, ResultType } from '@/app/types/sql-practice';
-import { pool } from '@/lib/db';
+import { Pool } from 'pg';
 
-// Helper function to simulate a delay
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
 // Reference solutions map
 const referenceSolutions: Record<string, { preparationQuery: string, selectQuery: string }> = {
@@ -13,13 +14,30 @@ const referenceSolutions: Record<string, { preparationQuery: string, selectQuery
   },
   '2': {
     preparationQuery: '',
-    selectQuery: 'SELECT count(*) FROM film WHERE rental_rate > 2.0;'
+    selectQuery: 'SELECT * FROM actor;'
   },
   '3': {
-    preparationQuery: 'CREATE INDEX IF NOT EXISTS idx_customer_last_name ON customer (last_name);',
-    selectQuery: 'SELECT * FROM customer WHERE last_name = \'SMITH\';'
-  }
+    preparationQuery: 'CREATE INDEX IF NOT EXISTS idx_actor_first_name ON actor (first_name);',
+    selectQuery: 'SELECT count(1) FROM actor WHERE first_name LIKE \'MARILYN\';'
+  },
 };
+
+// Helper function to convert query results to comparable sets
+function resultToSet(queryResult: any): Set<string> {
+  return new Set(queryResult.rows.map((row: any) => JSON.stringify(row)));
+}
+
+// Helper function to extract execution time from EXPLAIN ANALYZE JSON output
+function getExecutionTime(explainResult: any): number {
+  try {
+    // The result comes as { rows: [{ 'QUERY PLAN': [Array] }] }
+    const queryPlan = explainResult.rows[0]['QUERY PLAN'];
+    return queryPlan[0]['Execution Time'];
+  } catch (error) {
+    console.error('Error extracting execution time:', error);
+    return 0;
+  }
+}
 
 export async function POST(
   request: NextRequest,
@@ -27,101 +45,100 @@ export async function POST(
 ) {
   try {
     const practiceTaskId = params.practiceTaskId;
-    
-    // Check if the practice task exists in reference solutions
+
     if (!referenceSolutions[practiceTaskId]) {
       return NextResponse.json(
         { error: `Practice task with ID ${practiceTaskId} not found` },
         { status: 404 }
       );
     }
-    
-    // Parse the request body
-    const body: EvaluateRequestBody = await request.json();
-    const { preparationQuery, selectQuery } = body;
+
+    const usersSolution: EvaluateRequestBody = await request.json();
+    let { preparationQuery, selectQuery } = usersSolution;
 
     console.log(`Evaluating task ${practiceTaskId} with:`, { preparationQuery, selectQuery });
 
-    // Simulate processing delay (3 seconds)
-    await sleep(3000);
-
-    // Get the reference solution
     const referenceSolution = referenceSolutions[practiceTaskId];
-    
-    // Store all query results for debugging
-    const queryResults: any = {
-      referencePreparation: null,
-      referenceSelect: null,
-      referenceExplain: null,
-      userPreparation: null,
-      userSelect: null,
-      userExplain: null
+    preparationQuery = referenceSolution.preparationQuery;
+    selectQuery = referenceSolution.selectQuery;
+
+    const result: ResultType = {
+      correct: false,
+      performant: false,
+      usersTime: undefined,
+      referenceTime: undefined,
+      usersSet: undefined,
+      referenceSet: undefined,
+      usersPlan: undefined,
     };
 
     // Get a client from the pool
     const client = await pool.connect();
-    
+
     try {
       // First transaction: Run reference solution
       await client.query('BEGIN');
-      
-      // Run preparation query if it exists
+
       if (referenceSolution.preparationQuery && referenceSolution.preparationQuery.trim() !== '') {
-        queryResults.referencePreparation = await client.query(referenceSolution.preparationQuery);
+        await client.query(referenceSolution.preparationQuery);
       }
-      
-      // Run reference select query
-      queryResults.referenceSelect = await client.query(referenceSolution.selectQuery);
-      
+
+      const referenceQueryResult = await client.query(referenceSolution.selectQuery);
+      result.referenceSet = referenceQueryResult.rows;
+
       // Run explain analyze on reference select query
       const explainReferenceQuery = `EXPLAIN (ANALYZE, FORMAT JSON) ${referenceSolution.selectQuery}`;
-      queryResults.referenceExplain = await client.query(explainReferenceQuery);
-      
-      // Rollback the transaction
+      const referenceExplain = await client.query(explainReferenceQuery);
+      console.log(referenceExplain.rows[0]['QUERY PLAN']);
+      result.referenceTime = getExecutionTime(referenceExplain);
+
       await client.query('ROLLBACK');
-      
-      // Second transaction: Run user solution
+
+      // Second transaction: Run user  solution
       await client.query('BEGIN');
-      
+
       // Run user preparation query if it exists
       if (preparationQuery && preparationQuery.trim() !== '') {
-        queryResults.userPreparation = await client.query(preparationQuery);
+        await client.query(preparationQuery);
       }
-      
+
       // Run user select query
-      queryResults.userSelect = await client.query(selectQuery);
-      
+      const usersQueryResult = await client.query(selectQuery);
+      result.usersSet = usersQueryResult.rows;
+
       // Run explain analyze on user select query
       const explainUserQuery = `EXPLAIN (ANALYZE, FORMAT JSON) ${selectQuery}`;
-      queryResults.userExplain = await client.query(explainUserQuery);
-      
-      // Rollback the transaction
+      const userExplain = await client.query(explainUserQuery);
+      result.usersTime = getExecutionTime(userExplain);
+      // Store the full plan for visualization
+      result.usersPlan = userExplain.rows[0]['QUERY PLAN'][0];
+
+      // Compare results using sets
+      const referenceSet = resultToSet(referenceQueryResult);
+      const userSet = resultToSet(usersQueryResult);
+      result.correct = referenceSet.size === userSet.size &&
+        [...referenceSet].every(item => userSet.has(item));
+
+      // Check performance (user's time should be less than 1.5x reference time)
+      if (result.correct && result.usersTime !== undefined && result.referenceTime !== undefined) {
+        result.performant = result.usersTime < result.referenceTime;
+      }
+
       await client.query('ROLLBACK');
-      
+
     } catch (dbError) {
       // Rollback transaction on error
       await client.query('ROLLBACK');
       console.error('Database error:', dbError);
-      
-      // Store the error in queryResults
-      queryResults.error = dbError instanceof Error ? dbError.message : String(dbError);
+      return NextResponse.json(
+        { error: dbError instanceof Error ? dbError.message : String(dbError) },
+        { status: 500 }
+      );
     } finally {
       // Release client back to pool
       client.release();
     }
 
-    // For now, we'll just mock the results but include the query results for debugging
-    let result: ResultType = {
-      correct: true,
-      performant: true,
-      usersTime: 40,
-      referenceTime: 50,
-      usersSet: [{ id: 2, name: "Jane Smith", salary: 85000 }],
-      referenceSet: [{ id: 2, name: "Jane Smith", salary: 85000 }],
-      usersPlan: JSON.stringify(queryResults, null, 2)
-    };
-
-    // Return the result
     return NextResponse.json(result);
   } catch (error) {
     console.error('Error evaluating SQL query:', error);
