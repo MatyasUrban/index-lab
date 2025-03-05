@@ -122,6 +122,7 @@ type NodeInfo = {
     type: string
     relation: string
     index: string
+    loops: number
     children: number[]
     details: Record<string, any>
 }
@@ -170,6 +171,7 @@ function analyzePlan(plan: any): AnalyzedPlan {
             type: node["Node Type"],
             relation: "Relation Name" in node ? node["Relation Name"] : "",
             index: "Index Name" in node ? node["Index Name"] : "",
+            loops: "Actual Loops" in node ? node["Actual Loops"] : 0,
             children: [],
             details: { ...node },
         }
@@ -426,16 +428,22 @@ export default function AnalyzePage() {
                         hoveredNodeId === node.id
                             ? "outline outline-4 outline-pink-500"
                             : hoveredNodeId !== null && node.children.includes(hoveredNodeId)
-                                ? "bg-green-200 dark:bg-green-800"
+                                ? "bg-pink-200 dark:bg-pink-800"
                                 : ""
                     }`}
                     onMouseEnter={() => setHoveredNodeId(node.id)}
                     onMouseLeave={() => setHoveredNodeId(null)}
                 >
                     <div className="flex items-center justify-between mb-2">
-                        <Badge variant="outline" className="bg-black text-gray-200">
-                            Node {node.id}
-                        </Badge>
+                        <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="bg-black text-gray-200 border-black">
+                                Node {node.id}
+                            </Badge>
+                            <Badge variant="outline" className="flex items-center gap-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-900 dark:text-indigo-100 border-indigo-100 dark:border-indigo-900">
+                                <Repeat className="h-3 w-3" />
+                                <span className="text-xs font-medium">{node.loops}</span>
+                            </Badge>
+                        </div>
                         <NodeDetailsDialog node={node} />
                     </div>
                     <h3 className="text-lg font-semibold">{node.type}</h3>
@@ -473,7 +481,7 @@ export default function AnalyzePage() {
             <div className="w-1/5 border-r flex flex-col bg-background">
                 <div className="flex-1 min-h-0 p-4">
                     <Textarea
-                        placeholder="Paste your PostgreSQL execution plan JSON here..."
+                        placeholder="Paste the result of your 'explain (analyze, format json)' here..."
                         value={planInput}
                         onChange={(e) => setPlanInput(e.target.value)}
                         className="h-full resize-none font-mono text-sm"
@@ -505,16 +513,16 @@ export default function AnalyzePage() {
                                 content={planningExecutionTimeContent}
                             />
                             <Insight
-                                title="Data Flow"
-                                description="Visual representation of how data flows through different nodes in your query execution plan. This helps understand the relationships and dependencies between different operations."
-                                learnings={["indexOnlyScan", "seqScan"]}
-                                content={dataFlowContent}
-                            />
-                            <Insight
                                 title="Query Plan Nodes"
                                 description="These nodes represent the steps taken to execute your query. Understanding the node types and their relationships can help you optimize your query structure and indexing strategy."
                                 learnings={["indexOnlyScan", "seqScan"]}
                                 content={nodesContent}
+                            />
+                            <Insight
+                                title="Data Flow"
+                                description="Visual representation of how data flows through different nodes in your query execution plan. This helps understand the relationships and dependencies between different operations."
+                                learnings={["indexOnlyScan", "seqScan"]}
+                                content={dataFlowContent}
                             />
                             <Insight
                                 title="Expected Node Startup & Total Cost"
@@ -523,11 +531,12 @@ export default function AnalyzePage() {
                                 content={nodeExpectedCostAnalysisContent}
                             />
                             <Insight
-                                title="Actual Node Startup & Total Time"
+                                title="Actual Node Startup & Total Time (in ms)"
                                 description="This insight helps you understand the cost distribution across different nodes in your query execution plan. By comparing startup and total costs, you can identify potential bottlenecks and optimization opportunities."
                                 learnings={["startupCost", "totalCost"]}
                                 content={nodeActualTimeAnalysisContent}
                             />
+
 
                         </div>
                     )}
@@ -535,7 +544,7 @@ export default function AnalyzePage() {
                     {!error && !analyzedPlan && (
                         <div className="flex items-center justify-center h-full">
                             <div className="text-center text-muted-foreground">
-                                <p>Enter your execution plan JSON and click "Digest Plan" to analyze</p>
+                                <p>Click "Digest Plan" to generate insights from your execution plan</p>
                             </div>
                         </div>
                     )}
