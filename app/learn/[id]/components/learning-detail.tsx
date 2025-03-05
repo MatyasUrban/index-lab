@@ -329,9 +329,22 @@ export default function SQLPracticePage({ item }: SQLPracticePageProps) {
                     </div>
                   )}
 
-                  <Button className="w-full mt-4" onClick={() => setShowPlan(true)}>
-                    Analyze your query execution plan
-                  </Button>
+                  <div className="flex gap-2 mt-4">
+                    <Button className="w-1/2" onClick={() => setShowPlan(true)}>
+                      Read your execution plan
+                    </Button>
+                    <Button 
+                      className="w-1/2" 
+                      onClick={() => {
+                        if (result?.usersPlan) {
+                          const planJson = encodeURIComponent(JSON.stringify(result.usersPlan));
+                          window.open(`/analyze?plan=${planJson}`, '_blank');
+                        }
+                      }}
+                    >
+                      Analyze your execution plan
+                    </Button>
+                  </div>
                 </div>
               </TabsContent>
 

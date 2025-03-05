@@ -2,13 +2,13 @@ services:
   db:
     image: postgres:17
     environment:
-      POSTGRES_DB: index-lab
+      POSTGRES_DB: demo
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./demo.sql:/docker-entrypoint-initdb.d/init.sql
       - postgres_data:/var/lib/postgresql/data
 
 volumes:
