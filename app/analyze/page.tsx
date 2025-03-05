@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect, useCallback } from "react"
-import {AlertCircle, ChevronUp, Info, Database, MousePointerClick} from "lucide-react"
+import {AlertCircle, ChevronUp, Info, Database, MousePointerClick, Repeat} from "lucide-react"
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 import { useSearchParams } from "next/navigation"
 import ReactFlow, { 
@@ -255,28 +255,30 @@ function analyzePlan(plan: any): AnalyzedPlan {
             <span className="sr-only">View node details</span>
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-w-3xl">
+        <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>
               Node {node.id} Details: {node.type}
             </DialogTitle>
           </DialogHeader>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-1/3">Property</TableHead>
-                <TableHead>Value</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {Object.entries(node.details).map(([key, value]) => (
-                <TableRow key={key}>
-                  <TableCell className="font-medium">{key}</TableCell>
-                  <TableCell>{JSON.stringify(value)}</TableCell>
+          <div className="overflow-auto flex-1">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-1/3 sticky top-0 bg-background z-10">Property</TableHead>
+                  <TableHead className="sticky top-0 bg-background z-10">Value</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {Object.entries(node.details).map(([key, value]) => (
+                  <TableRow key={key}>
+                    <TableCell className="font-medium">{key}</TableCell>
+                    <TableCell>{JSON.stringify(value)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </DialogContent>
       </Dialog>
     )
@@ -477,78 +479,76 @@ export default function AnalyzePage() {
     )
 
     return (
-        <div className="flex h-[calc(100vh-4rem)]">
-            <div className="w-1/5 border-r flex flex-col bg-background">
-                <div className="flex-1 min-h-0 p-4">
-                    <Textarea
-                        placeholder="Paste the result of your 'explain (analyze, format json)' here..."
-                        value={planInput}
-                        onChange={(e) => setPlanInput(e.target.value)}
-                        className="h-full resize-none font-mono text-sm"
-                    />
-                </div>
-                <div className="p-4 border-t">
-                    <Button onClick={handleDigestPlan} className="w-full">
-                        Digest Plan
-                    </Button>
+        <div className="flex flex-col md:flex-row">
+            <div className="w-full md:w-1/5 p-4 bg-background">
+                <div className="flex flex-col space-y-4">
+                    <div className="border rounded-md p-1">
+                        <Textarea
+                            placeholder="Paste the result of your 'explain (analyze, format json)' here..."
+                            value={planInput}
+                            onChange={(e) => setPlanInput(e.target.value)}
+                            className="resize-none font-mono text-sm h-64 border-0 focus-visible:ring-0 p-2"
+                        />
+                        <div className="border-t p-2">
+                            <Button onClick={handleDigestPlan} className="w-full">
+                                Digest Plan
+                            </Button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div className="w-4/5 overflow-auto">
-                <div className="p-4">
-                    {error && (
-                        <Alert variant="destructive" className="mb-4">
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertTitle>Error</AlertTitle>
-                            <AlertDescription>{error}</AlertDescription>
-                        </Alert>
-                    )}
+            <div className="w-full md:w-4/5 p-4 overflow-auto">
+                {error && (
+                    <Alert variant="destructive" className="mb-4">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Error</AlertTitle>
+                        <AlertDescription>{error}</AlertDescription>
+                    </Alert>
+                )}
 
-                    {analyzedPlan && (
-                        <div className="space-y-4">
-                            <Insight
-                                title="Planning and Execution Time"
-                                description="Understanding the time spent on planning versus execution can help you optimize your queries and database structure."
-                                learnings={["planningTime", "executionTime"]}
-                                content={planningExecutionTimeContent}
-                            />
-                            <Insight
-                                title="Query Plan Nodes"
-                                description="These nodes represent the steps taken to execute your query. Understanding the node types and their relationships can help you optimize your query structure and indexing strategy."
-                                learnings={["indexOnlyScan", "seqScan"]}
-                                content={nodesContent}
-                            />
-                            <Insight
-                                title="Data Flow"
-                                description="Visual representation of how data flows through different nodes in your query execution plan. This helps understand the relationships and dependencies between different operations."
-                                learnings={["indexOnlyScan", "seqScan"]}
-                                content={dataFlowContent}
-                            />
-                            <Insight
-                                title="Expected Node Startup & Total Cost"
-                                description="This insight helps you understand the cost distribution across different nodes in your query execution plan. By comparing startup and total costs, you can identify potential bottlenecks and optimization opportunities."
-                                learnings={["startupCost", "totalCost"]}
-                                content={nodeExpectedCostAnalysisContent}
-                            />
-                            <Insight
-                                title="Actual Node Startup & Total Time (in ms)"
-                                description="This insight helps you understand the cost distribution across different nodes in your query execution plan. By comparing startup and total costs, you can identify potential bottlenecks and optimization opportunities."
-                                learnings={["startupCost", "totalCost"]}
-                                content={nodeActualTimeAnalysisContent}
-                            />
+                {analyzedPlan && (
+                    <div className="space-y-4">
+                        <Insight
+                            title="Planning and Execution Time"
+                            description="Understanding the time spent on planning versus execution can help you optimize your queries and database structure."
+                            learnings={["planningTime", "executionTime"]}
+                            content={planningExecutionTimeContent}
+                        />
+                        <Insight
+                            title="Query Plan Nodes"
+                            description="These nodes represent the steps taken to execute your query. Understanding the node types and their relationships can help you optimize your query structure and indexing strategy."
+                            learnings={["indexOnlyScan", "seqScan"]}
+                            content={nodesContent}
+                        />
+                        <Insight
+                            title="Data Flow"
+                            description="Visual representation of how data flows through different nodes in your query execution plan. This helps understand the relationships and dependencies between different operations."
+                            learnings={["indexOnlyScan", "seqScan"]}
+                            content={dataFlowContent}
+                        />
+                        <Insight
+                            title="Expected Node Startup & Total Cost"
+                            description="This insight helps you understand the cost distribution across different nodes in your query execution plan. By comparing startup and total costs, you can identify potential bottlenecks and optimization opportunities."
+                            learnings={["startupCost", "totalCost"]}
+                            content={nodeExpectedCostAnalysisContent}
+                        />
+                        <Insight
+                            title="Actual Node Startup & Total Time (in ms)"
+                            description="This insight helps you understand the cost distribution across different nodes in your query execution plan. By comparing startup and total costs, you can identify potential bottlenecks and optimization opportunities."
+                            learnings={["startupCost", "totalCost"]}
+                            content={nodeActualTimeAnalysisContent}
+                        />
+                    </div>
+                )}
 
-
+                {!error && !analyzedPlan && (
+                    <div className="flex items-center justify-center h-full">
+                        <div className="text-center text-muted-foreground">
+                            <p>Click "Digest Plan" to generate insights from your execution plan</p>
                         </div>
-                    )}
-
-                    {!error && !analyzedPlan && (
-                        <div className="flex items-center justify-center h-full">
-                            <div className="text-center text-muted-foreground">
-                                <p>Click "Digest Plan" to generate insights from your execution plan</p>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
         </div>
     )
