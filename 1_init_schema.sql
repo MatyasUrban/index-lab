@@ -1,5 +1,4 @@
-CREATE SCHEMA employees;
-SET search_path = employees;
+SET client_encoding = ‘UTF8’;
 
 CREATE TYPE employee_gender AS ENUM (
     'M',
@@ -52,3 +51,5 @@ CREATE TABLE title (
     to_date date NOT NULL,
     PRIMARY KEY (employee_id, title, from_date)
 );
+
+CREATE EXTENSION pg_trgm;
