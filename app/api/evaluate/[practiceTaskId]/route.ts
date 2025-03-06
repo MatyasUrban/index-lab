@@ -99,8 +99,8 @@ async function evaluateWithUpdates(
         performant: false,
         usersTime: undefined,
         referenceTime: undefined,
-        usersSet: undefined,
-        referenceSet: undefined,
+        usersRows: undefined,
+        referenceRows: undefined,
         usersPlan: undefined,
       };
 
@@ -132,7 +132,7 @@ async function evaluateWithUpdates(
         await delay(500)
 
         const referenceQueryResult = await client.query(referenceSolution.selectQuery);
-        result.referenceSet = referenceQueryResult.rows;
+        result.referenceRows = referenceQueryResult.rows;
 
         // Run explain analyze on reference select query
         const explainReferenceQuery = `EXPLAIN (ANALYZE, FORMAT JSON) ${referenceSolution.selectQuery}`;
@@ -178,7 +178,7 @@ async function evaluateWithUpdates(
 
         // Run user select query
         const usersQueryResult = await client.query(selectQuery);
-        result.usersSet = usersQueryResult.rows;
+        result.usersRows = usersQueryResult.rows;
 
         // Run explain analyze on user select query
         const explainUserQuery = `EXPLAIN (ANALYZE, FORMAT JSON) ${selectQuery}`;

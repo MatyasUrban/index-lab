@@ -1,0 +1,50 @@
+"use client"
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+
+interface PracticeExecutionPlanProps {
+  usersPlan: string | undefined
+}
+
+export function PracticePlanButtons({ usersPlan }: PracticeExecutionPlanProps) {
+  const [showPlan, setShowPlan] = useState(false)
+
+  return (
+    <div className="flex gap-2 mt-4 w-full">
+      <Button className="w-1/2" onClick={() => setShowPlan(true)}>
+        Read your execution plan
+      </Button>
+      
+      <Button 
+        className="w-1/2" 
+        onClick={() => {
+          if (usersPlan) {
+            const planJson = encodeURIComponent(JSON.stringify(usersPlan));
+            window.open(`/analyze?plan=${planJson}`, '_blank');
+          }
+        }}
+        disabled={!usersPlan}
+      >
+        Analyze your execution plan
+      </Button>
+
+      {/* Query Execution Plan Dialog */}
+      <Dialog open={showPlan} onOpenChange={setShowPlan}>
+        <DialogContent className="max-w-[90vw] max-h-[90vh] w-[90vw] h-[90vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Query Execution Plan</DialogTitle>
+          </DialogHeader>
+          <div className="p-4">
+            <div className="border p-4 rounded-md bg-white">
+              <pre className="text-xs overflow-auto whitespace-pre-wrap">
+                {usersPlan ? JSON.stringify(usersPlan, null, 2) : 'No plan available'}
+              </pre>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+} 

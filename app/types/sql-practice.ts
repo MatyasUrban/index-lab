@@ -4,9 +4,9 @@ export type ResultType = {
   performant?: boolean;
   usersTime?: number;
   referenceTime?: number;
-  usersSet?: Record<string, any>[];
-  referenceSet?: Record<string, any>[];
-  usersPlan?: Record<string, any>;
+  usersRows?: Record<string, any>[];
+  referenceRows?: Record<string, any>[];
+  usersPlan?: string;
 };
 
 export interface EvaluateRequestBody {
