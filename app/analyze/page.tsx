@@ -321,6 +321,12 @@ function DataFlow({ nodes, edges }: { nodes: any[], edges: any[] }) {
     const [flowNodes, setNodes, onNodesChange] = useNodesState(nodes)
     const [flowEdges, setEdges, onEdgesChange] = useEdgesState(edges)
 
+    // Add useEffect to update nodes and edges when props change
+    useEffect(() => {
+        setNodes(nodes);
+        setEdges(edges);
+    }, [nodes, edges, setNodes, setEdges]);
+
     return (
         <div style={{ width: '100%', height: '500px' }}>
             <ReactFlow

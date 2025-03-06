@@ -1,0 +1,30 @@
+# Creating Your First Index
+
+In this practice exercise, you'll learn how to create a basic index on a PostgreSQL table and observe its performance benefits.
+
+## Task
+
+Create a B-tree index on the 'users' table for the 'email' column and verify its performance improvement.
+
+## Instructions
+
+1. First, examine the current query performance without an index:
+   ```sql
+   EXPLAIN ANALYZE SELECT * FROM users WHERE email = 'user123@example.com';
+   ```
+
+2. Create a B-tree index on the email column:
+   ```sql
+   CREATE INDEX idx_users_email ON users (email);
+   ```
+
+3. Run the same query again with EXPLAIN ANALYZE to see the performance difference:
+   ```sql
+   EXPLAIN ANALYZE SELECT * FROM users WHERE email = 'user123@example.com';
+   ```
+
+4. Compare the execution times and observe how PostgreSQL uses the index in the query plan.
+
+## Expected Outcome
+
+You should see a significant performance improvement after creating the index, especially for tables with many rows. The query plan should show that PostgreSQL is using an "Index Scan" instead of a "Sequential Scan". 

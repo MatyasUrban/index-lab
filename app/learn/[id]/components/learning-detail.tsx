@@ -12,15 +12,56 @@ import { Textarea } from "@/components/ui/textarea"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronDown, ChevronUp, CheckCircle2, XCircle, Loader2 } from "lucide-react"
+import { ChevronDown, ChevronUp, CheckCircle2, XCircle, Loader2, Database } from "lucide-react"
 import { ResultType } from "@/app/types/sql-practice"
+import { Progress } from "@/components/ui/progress"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
-// Dynamic imports for MDX content
-const MDXComponents = {
-    "introduction-to-indexes": lazy(() => import("@/markdown/learn/introduction-to-indexes.mdx")),
-    "index-types": lazy(() => import("@/markdown/learn/index-types.mdx")),
-    "query-planning": lazy(() => import("@/markdown/learn/query-planning.mdx")),
-}
+// Database schema data
+type ColumnConstraint = "PK" | "FK->employee" | "FK->department" | "-";
+type TableColumn = [string, string, ColumnConstraint[]];
+type DatabaseSchema = {
+    [tableName: string]: TableColumn[];
+};
+
+const databaseSchema: DatabaseSchema = {
+    "department": [
+        ["id", "char(4)", ["PK"]],
+        ["dept_name", "varchar(40)", ["-"]]
+    ],
+    "department_employee": [
+        ["employee_id", "bigint", ["PK", "FK->employee"]],
+        ["department_id", "char(4)", ["PK", "FK->department"]],
+        ["from_date", "date", ["-"]],
+        ["to_date", "date", ["-"]]
+    ],
+    "department_manager": [
+        ["employee_id", "bigint", ["PK", "FK->employee"]],
+        ["department_id", "char(4)", ["PK", "FK->department"]],
+        ["from_date", "date", ["-"]],
+        ["to_date", "date", ["-"]]
+    ],
+    "employee": [
+        ["id", "bigint", ["PK"]],
+        ["birth_date", "date", ["-"]],
+        ["first_name", "varchar(14)", ["-"]],
+        ["gender", "enum('M', 'F')", ["-"]],
+        ["hire_date", "date", ["-"]],
+        ["last_name", "varchar(16)", ["-"]]
+    ],
+    "salary": [
+        ["employee_id", "bigint", ["PK", "FK->employee"]],
+        ["amount", "bigint", ["-"]],
+        ["from_date", "date", ["PK"]],
+        ["to_date", "date", ["-"]]
+    ],
+    "title": [
+        ["employee_id", "bigint", ["PK", "FK->employee"]],
+        ["title", "varchar(50)", ["PK"]],
+        ["from_date", "date", ["PK"]],
+        ["to_date", "date", ["-"]]
+    ]
+};
 
 interface LearningDetailProps {
     currentItemId: number
@@ -32,6 +73,17 @@ export function LearningDetail({ currentItemId }: LearningDetailProps) {
     const currentItem = learningPath[currentIndex]
     const previousItem = currentIndex > 0 ? learningPath[currentIndex - 1] : null
     const nextItem = currentIndex < learningPath.length - 1 ? learningPath[currentIndex + 1] : null
+
+    // State declarations
+    const [activeTab, setActiveTab] = useState<string>("learn")
+    const [query, setQuery] = useState<string>("")
+    const [preQuery, setPreQuery] = useState<string>("")
+    const [result, setResult] = useState<ResultType | null>(null)
+    const [loading, setLoading] = useState<boolean>(false)
+    const [submitted, setSubmitted] = useState<boolean>(false)
+    const [showHint, setShowHint] = useState<boolean>(false)
+    const [showSolution, setShowSolution] = useState<boolean>(false)
+    const [showPlanDialog, setShowPlanDialog] = useState<boolean>(false)
 
     if (!currentItem) {
         return <div>Item not found</div>
@@ -85,22 +137,19 @@ export function LearningDetail({ currentItemId }: LearningDetailProps) {
 }
 
 function LearnContent({ item }: { item: LearningItem & { type: "learn" } }) {
-    // Check if we have an MDX component for this content
-    const MDXContent = item.content in MDXComponents 
-        ? MDXComponents[item.content as keyof typeof MDXComponents]
-        : null
+    // Dynamically import MDX file based on the item ID
+    const MDXContent = lazy(() => import(`@/markdown/learn/${item.id}.mdx`).catch(() => {
+        console.error(`MDX file for ID ${item.id} not found`)
+        return { default: () => <p>Content not available.</p> }
+    }))
 
     return (
         <Card>
             <CardContent className="pt-6">
                 <div className="prose max-w-none">
-                    {MDXContent ? (
-                        <Suspense fallback={<p>Loading content...</p>}>
-                            <MDXContent />
-                        </Suspense>
-                    ) : (
-                        <p>Content for "{item.content}" is not available.</p>
-                    )}
+                    <Suspense fallback={<p>Loading content...</p>}>
+                        <MDXContent />
+                    </Suspense>
                 </div>
             </CardContent>
         </Card>
@@ -114,23 +163,33 @@ interface SQLPracticePageProps {
 export default function SQLPracticePage({ item }: SQLPracticePageProps) {
   const [preQuery, setPreQuery] = useState("")
   const [query, setQuery] = useState("")
+  const [hintStates, setHintStates] = useState<boolean[]>(Array(item.hints.length).fill(false))
   const [showDiagram, setShowDiagram] = useState(false)
-  const [hint1Open, setHint1Open] = useState(false)
-  const [hint2Open, setHint2Open] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<ResultType | null>(null)
   const [showPlan, setShowPlan] = useState(false)
+  const [progress, setProgress] = useState<{ value: number; message: string } | null>(null)
 
-  // Use the task description from the item prop
-  const taskDescription = item.taskDescription
-  // Example hints - replace with your actual content from the item if available
-  const hint1 = "You'll need to use a subquery to calculate the average salary."
-  const hint2 = "Consider using the AVG() function within a WHERE clause."
+  // Dynamically import MDX file based on the item ID
+  const MDXContent = lazy(() => import(`@/markdown/learn/${item.id}.mdx`).catch(() => {
+    console.error(`MDX file for ID ${item.id} not found`)
+    return { default: () => <p>Task description not available.</p> }
+  }))
+
+  const toggleHint = (index: number) => {
+    setHintStates(prev => {
+      const newStates = [...prev]
+      newStates[index] = !newStates[index]
+      return newStates
+    })
+  }
 
   const handleSubmit = async () => {
     setSubmitted(true)
     setLoading(true)
+    setResult(null)
+    setProgress({ value: 0, message: "Starting evaluation..." })
 
     try {
       const response = await fetch(`/api/evaluate/${item.id}`, {
@@ -148,12 +207,18 @@ export default function SQLPracticePage({ item }: SQLPracticePageProps) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const data = await response.json();
-      setResult(data);
+      const result = await response.json();
+      
+      if (result.error) {
+        setResult({ error: result.error });
+      } else {
+        setResult(result);
+      }
+      
+      setLoading(false);
     } catch (error) {
       console.error('Error evaluating query:', error);
       setResult({ error: 'Failed to evaluate query. Please try again.' });
-    } finally {
       setLoading(false);
     }
   }
@@ -168,7 +233,11 @@ export default function SQLPracticePage({ item }: SQLPracticePageProps) {
             <CardTitle>Task</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>{taskDescription}</p>
+            <div className="prose max-w-none">
+              <Suspense fallback={<p>Loading task description...</p>}>
+                <MDXContent />
+              </Suspense>
+            </div>
           </CardContent>
         </Card>
 
@@ -181,23 +250,21 @@ export default function SQLPracticePage({ item }: SQLPracticePageProps) {
           View Database Schema
         </Button>
 
-        {/* Hint 1 */}
-        <Collapsible open={hint1Open} onOpenChange={setHint1Open} className="border rounded-md">
-          <CollapsibleTrigger className="flex w-full justify-between items-center p-4 font-medium">
-            <span>Hint 1</span>
-            {hint1Open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </CollapsibleTrigger>
-          <CollapsibleContent className="p-4 pt-0 border-t">{hint1}</CollapsibleContent>
-        </Collapsible>
-
-        {/* Hint 2 */}
-        <Collapsible open={hint2Open} onOpenChange={setHint2Open} className="border rounded-md">
-          <CollapsibleTrigger className="flex w-full justify-between items-center p-4 font-medium">
-            <span>Hint 2</span>
-            {hint2Open ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-          </CollapsibleTrigger>
-          <CollapsibleContent className="p-4 pt-0 border-t">{hint2}</CollapsibleContent>
-        </Collapsible>
+        {/* Hints */}
+        {item.hints.map((hint, index) => (
+          <Collapsible 
+            key={`hint-${index}`} 
+            open={hintStates[index]} 
+            onOpenChange={() => toggleHint(index)} 
+            className="border rounded-md"
+          >
+            <CollapsibleTrigger className="flex w-full justify-between items-center p-4 font-medium">
+              <span>Hint {index + 1}</span>
+              {hintStates[index] ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </CollapsibleTrigger>
+            <CollapsibleContent className="p-4 pt-0 border-t">{hint}</CollapsibleContent>
+          </Collapsible>
+        ))}
       </div>
 
       {/* Right Column */}
@@ -249,12 +316,21 @@ export default function SQLPracticePage({ item }: SQLPracticePageProps) {
 
         {/* Results Card */}
         <Card className={`mt-4 relative ${result?.error ? "bg-red-600 text-white" : ""}`}>
-          {loading && (
-            <div className="absolute inset-0 bg-background/80 flex items-center justify-center z-50">
-              <Loader2 className="h-8 w-8 animate-spin" />
-            </div>
-          )}
-          {result?.error ? (
+          {loading ? (
+            <CardContent className="p-6 flex flex-col items-center justify-center min-h-[150px]">
+              {progress ? (
+                <>
+                  <Progress value={progress.value} className="w-full mb-2" />
+                  <p className="text-sm text-muted-foreground">{progress.message}</p>
+                </>
+              ) : (
+                <div className="flex flex-col items-center">
+                  <Loader2 className="h-8 w-8 animate-spin mb-2" />
+                  <p className="text-sm text-muted-foreground">Evaluating your solution...</p>
+                </div>
+              )}
+            </CardContent>
+          ) : result?.error ? (
             <CardContent className="p-6">
               <p className="font-mono">{result.error}</p>
             </CardContent>
@@ -429,24 +505,90 @@ export default function SQLPracticePage({ item }: SQLPracticePageProps) {
             <DialogTitle>Database Schema</DialogTitle>
           </DialogHeader>
           <div className="p-4">
-            <div className="border p-4 rounded-md bg-white">
-              {/* Mermaid diagram would be rendered here */}
-              <pre className="text-xs overflow-auto">
-                {`
-graph TD;
-  "employees" --> "id:int"
-  "employees" --> "name:varchar"
-  "employees" --> "department_id:int"
-  "employees" --> "salary:decimal"
-  "employees" --> "hire_date:date"
-  
-  "departments" --> "id:int"
-  "departments" --> "name:varchar"
-  "departments" --> "location:varchar"
-  
-  "employees" -.-> "departments"
-                `}
-              </pre>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* First 3 tables (left side) */}
+              <div className="space-y-6">
+                {Object.entries(databaseSchema).slice(0, 3).map(([tableName, columns]) => (
+                  <Card key={tableName} className="overflow-hidden">
+                    <CardHeader className="bg-slate-50 py-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <Database className="h-4 w-4" />
+                        {tableName}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-[30%]">Column</TableHead>
+                            <TableHead className="w-[30%]">Type</TableHead>
+                            <TableHead className="w-[40%]">Constraints</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {columns.map(([columnName, dataType, constraints], rowIndex) => (
+                            <TableRow key={`${tableName}-${columnName}-${rowIndex}`}>
+                              <TableCell className="font-medium">{columnName}</TableCell>
+                              <TableCell>{dataType}</TableCell>
+                              <TableCell>
+                                {constraints.map((constraint, i) => 
+                                  constraint !== "-" ? (
+                                    <Badge key={`${constraint}-${i}`} variant="outline" className="mr-1">
+                                      {constraint}
+                                    </Badge>
+                                  ) : null
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              
+              {/* Next 3 tables (right side) */}
+              <div className="space-y-6">
+                {Object.entries(databaseSchema).slice(3, 6).map(([tableName, columns]) => (
+                  <Card key={tableName} className="overflow-hidden">
+                    <CardHeader className="bg-slate-50 py-3">
+                      <CardTitle className="text-sm font-medium flex items-center gap-2">
+                        <Database className="h-4 w-4" />
+                        {tableName}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-[30%]">Column</TableHead>
+                            <TableHead className="w-[30%]">Type</TableHead>
+                            <TableHead className="w-[40%]">Constraints</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {columns.map(([columnName, dataType, constraints], rowIndex) => (
+                            <TableRow key={`${tableName}-${columnName}-${rowIndex}`}>
+                              <TableCell className="font-medium">{columnName}</TableCell>
+                              <TableCell>{dataType}</TableCell>
+                              <TableCell>
+                                {constraints.map((constraint, i) => 
+                                  constraint !== "-" ? (
+                                    <Badge key={`${constraint}-${i}`} variant="outline" className="mr-1">
+                                      {constraint}
+                                    </Badge>
+                                  ) : null
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           </div>
         </DialogContent>

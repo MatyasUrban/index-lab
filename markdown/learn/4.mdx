@@ -1,0 +1,61 @@
+# Choosing the Right Index
+
+In this practice exercise, you'll learn how to select the appropriate index type for different query patterns and data characteristics.
+
+## Task
+
+For the given table structure and query patterns, determine which index types would be most appropriate and implement them.
+
+## Table Structure
+
+```sql
+CREATE TABLE products (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100),
+  description TEXT,
+  price DECIMAL(10, 2),
+  category VARCHAR(50),
+  tags TEXT[],
+  location POINT,
+  created_at TIMESTAMP
+);
+```
+
+## Query Patterns
+
+1. Frequent equality searches on the category column:
+   ```sql
+   SELECT * FROM products WHERE category = 'Electronics';
+   ```
+
+2. Range queries on price:
+   ```sql
+   SELECT * FROM products WHERE price BETWEEN 100 AND 500;
+   ```
+
+3. Full-text search on description:
+   ```sql
+   SELECT * FROM products WHERE description ILIKE '%wireless%';
+   ```
+
+4. Array containment queries on tags:
+   ```sql
+   SELECT * FROM products WHERE tags @> ARRAY['wireless', 'bluetooth'];
+   ```
+
+5. Spatial queries on location:
+   ```sql
+   SELECT * FROM products WHERE location <-> POINT(37.7749, -122.4194) < 10;
+   ```
+
+## Instructions
+
+For each query pattern:
+1. Identify the most appropriate index type
+2. Create the index with the correct syntax
+3. Test the query performance with EXPLAIN ANALYZE
+4. Document your reasoning for choosing each index type
+
+## Expected Outcome
+
+You should be able to create appropriate indexes for each query pattern and observe performance improvements in the query execution plans. 
