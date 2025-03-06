@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { ResultType } from '@/app/types/sql-practice';
 import { Pool } from 'pg';
 
@@ -14,7 +14,7 @@ const referenceSolutions: Record<string, { preparationQuery: string, selectQuery
   },
   '2': {
     preparationQuery: '',
-    selectQuery: 'SELECT * FROM bookings.flights limit 100;'
+    selectQuery: 'SELECT * FROM department;'
   },
   '3': {
     preparationQuery: 'CREATE INDEX IF NOT EXISTS idx_actor_first_name ON actor (first_name);',
@@ -52,13 +52,38 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { practiceTaskId: string } }
 ) {
+  const responseStream = new TransformStream();
+  const writer = responseStream.writable.getWriter();
+  const encoder = new TextEncoder();
+
+  // Start the processing in the background
+  evaluateWithUpdates(request, { params }, writer, encoder);
+
+  return new NextResponse(responseStream.readable, {
+    headers: {
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+    },
+  });
+}
+
+async function evaluateWithUpdates(
+  request: NextRequest,
+  { params }: { params: { practiceTaskId: string } },
+  writer: WritableStreamDefaultWriter,
+  encoder: TextEncoder
+) {
   try {
     const { practiceTaskId } = await params;
 
     if (!referenceSolutions[practiceTaskId]) {
-      return new Response(JSON.stringify({ error: `Practice task with ID ${practiceTaskId} not found` }), {
-        headers: { 'Content-Type': 'application/json' }
-      });
+      await writer.write(encoder.encode(`data: ${JSON.stringify({ 
+        type: 'error', 
+        message: `Practice task with ID ${practiceTaskId} not found` 
+      })}\n\n`));
+      await writer.close();
+      return;
     }
 
     try {
@@ -83,12 +108,28 @@ export async function POST(
       const client = await pool.connect();
 
       try {
-        // First transaction: Run reference solution
-        await client.query('BEGIN');
+        // Step 1: Running reference preparation queries (0%)
+        await writer.write(encoder.encode(`data: ${JSON.stringify({ 
+          type: 'progress', 
+          step: 'runningReferencePreparation', 
+          progress: 0,
+          message: 'Running reference preparation queries...'
+        })}\n\n`));
+        await delay(500)
 
+        await client.query('BEGIN');
         if (referenceSolution.preparationQuery && referenceSolution.preparationQuery.trim() !== '') {
           await client.query(referenceSolution.preparationQuery);
         }
+        
+        // Step 2: Running reference select queries (15%)
+        await writer.write(encoder.encode(`data: ${JSON.stringify({ 
+          type: 'progress', 
+          step: 'runningReferenceSelect', 
+          progress: 15,
+          message: 'Running reference select queries...'
+        })}\n\n`));
+        await delay(500)
 
         const referenceQueryResult = await client.query(referenceSolution.selectQuery);
         result.referenceSet = referenceQueryResult.rows;
@@ -98,7 +139,25 @@ export async function POST(
         const referenceExplain = await client.query(explainReferenceQuery);
         result.referenceTime = getExecutionTime(referenceExplain);
 
+        // Step 3: Restoring the database (30%)
+        await writer.write(encoder.encode(`data: ${JSON.stringify({ 
+          type: 'progress', 
+          step: 'restoringDatabase1', 
+          progress: 30,
+          message: 'Restoring database state...'
+        })}\n\n`));
+        await delay(500)
+
         await client.query('ROLLBACK');
+
+        // Step 4: Running user's preparation queries (45%)
+        await writer.write(encoder.encode(`data: ${JSON.stringify({ 
+          type: 'progress', 
+          step: 'runningUserPreparation', 
+          progress: 45,
+          message: 'Running your preparation queries...'
+        })}\n\n`));
+        await delay(500)
 
         // Second transaction: Run user solution
         await client.query('BEGIN');
@@ -107,6 +166,15 @@ export async function POST(
         if (preparationQuery && preparationQuery.trim() !== '') {
           await client.query(preparationQuery);
         }
+
+        // Step 5: Running user's select queries (60%)
+        await writer.write(encoder.encode(`data: ${JSON.stringify({ 
+          type: 'progress', 
+          step: 'runningUserSelect', 
+          progress: 60,
+          message: 'Running your select queries...'
+        })}\n\n`));
+        await delay(500)
 
         // Run user select query
         const usersQueryResult = await client.query(selectQuery);
@@ -117,9 +185,27 @@ export async function POST(
         const userExplain = await client.query(explainUserQuery);
         result.usersTime = getExecutionTime(userExplain);
         // Store the full plan for visualization
-        result.usersPlan = userExplain.rows[0]['QUERY PLAN'][0];
+        result.usersPlan = userExplain.rows[0]['QUERY PLAN'];
+
+        // Step 6: Restoring the database (75%)
+        await writer.write(encoder.encode(`data: ${JSON.stringify({ 
+          type: 'progress', 
+          step: 'restoringDatabase2', 
+          progress: 75,
+          message: 'Restoring database state...'
+        })}\n\n`));
+        await delay(500)
 
         await client.query('ROLLBACK');
+
+        // Step 7: Evaluating the solution (90%)
+        await writer.write(encoder.encode(`data: ${JSON.stringify({ 
+          type: 'progress', 
+          step: 'evaluatingSolution', 
+          progress: 90,
+          message: 'Evaluating your solution...'
+        })}\n\n`));
+        await delay(500)
 
         // Compare results using sets
         const referenceSet = resultToSet(referenceQueryResult);
@@ -132,30 +218,39 @@ export async function POST(
           result.performant = result.usersTime < result.referenceTime;
         }
 
-        return new Response(JSON.stringify(result), {
-          headers: { 'Content-Type': 'application/json' }
-        });
+        // Send final result (100%)
+        await writer.write(encoder.encode(`data: ${JSON.stringify({
+          type: 'completed',
+          progress: 100,
+          result
+        })}\n\n`));
+
       } catch (dbError) {
         // Rollback transaction on error
         await client.query('ROLLBACK');
         console.error('Database error:', dbError);
-        return new Response(JSON.stringify({ error: dbError instanceof Error ? dbError.message : String(dbError) }), {
-          headers: { 'Content-Type': 'application/json' }
-        });
+        await writer.write(encoder.encode(`data: ${JSON.stringify({ 
+          type: 'error', 
+          message: dbError instanceof Error ? dbError.message : String(dbError) 
+        })}\n\n`));
       } finally {
         // Release client back to pool
         client.release();
       }
     } catch (parseError) {
       console.error('Error parsing request body:', parseError);
-      return new Response(JSON.stringify({ error: 'Invalid request body. Please check your query syntax.' }), {
-        headers: { 'Content-Type': 'application/json' }
-      });
+      await writer.write(encoder.encode(`data: ${JSON.stringify({ 
+        type: 'error', 
+        message: 'Invalid request body. Please check your query syntax.' 
+      })}\n\n`));
     }
   } catch (error) {
     console.error('Error evaluating SQL query:', error);
-    return new Response(JSON.stringify({ error: 'Failed to evaluate SQL query' }), {
-      headers: { 'Content-Type': 'application/json' }
-    });
+    await writer.write(encoder.encode(`data: ${JSON.stringify({ 
+      type: 'error', 
+      message: 'Failed to evaluate SQL query' 
+    })}\n\n`));
+  } finally {
+    await writer.close();
   }
 } 

@@ -45,7 +45,7 @@ const databaseSchema: DatabaseSchema = {
         ["id", "int", ["PK"]],
         ["birth_date", "date", ["-"]],
         ["first_name", "varchar(14)", ["-"]],
-        ["gender", "employee_gender('M', 'F', 'X')", ["-"]],
+        ["gender", "enum('M', 'F', 'X')", ["-"]],
         ["hire_date", "date", ["-"]],
         ["last_name", "varchar(16)", ["-"]]
     ],
@@ -196,6 +196,7 @@ export default function SQLPracticePage({ item }: SQLPracticePageProps) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'text/event-stream',
         },
         body: JSON.stringify({
           preparationQuery: preQuery,
@@ -207,17 +208,63 @@ export default function SQLPracticePage({ item }: SQLPracticePageProps) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const result = await response.json();
-      
-      if (result.error) {
-        setResult({ error: result.error });
-      } else {
-        setResult(result);
+      // Handle streaming response
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('Response body is not readable');
       }
-      
-      setLoading(false);
+
+      // Process the stream
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        
+        if (done) {
+          break;
+        }
+        
+        // Decode the chunk and add it to our buffer
+        buffer += decoder.decode(value, { stream: true });
+        
+        // Process complete events in the buffer
+        const lines = buffer.split('\n\n');
+        buffer = lines.pop() || ''; // Keep the last incomplete chunk in the buffer
+        
+        for (const line of lines) {
+          if (line.startsWith('data: ')) {
+            try {
+              const eventData = JSON.parse(line.substring(6));
+              
+              if (eventData.type === 'error') {
+                // Handle error event
+                setProgress(null);
+                setResult({ error: eventData.message });
+                setLoading(false);
+              } 
+              else if (eventData.type === 'completed' && eventData.progress === 100) {
+                // Final result received
+                setProgress(null);
+                setResult(eventData.result);
+                setLoading(false);
+              }
+              else if (eventData.type === 'progress') {
+                // Handle progress updates
+                setProgress({ 
+                  value: eventData.progress || 0, 
+                  message: eventData.message || 'Processing...' 
+                });
+              }
+            } catch (e) {
+              console.error('Error parsing event data:', e, line);
+            }
+          }
+        }
+      }
     } catch (error) {
       console.error('Error evaluating query:', error);
+      setProgress(null);
       setResult({ error: 'Failed to evaluate query. Please try again.' });
       setLoading(false);
     }
@@ -272,7 +319,7 @@ export default function SQLPracticePage({ item }: SQLPracticePageProps) {
         {/* Pre-query Input */}
         <div className="flex flex-col gap-2">
           <label htmlFor="pre-query" className="text-sm font-medium">
-            Pre-query
+            Preparation Query
           </label>
           <Input
             id="pre-query"
@@ -286,7 +333,7 @@ export default function SQLPracticePage({ item }: SQLPracticePageProps) {
         {/* Query Input */}
         <div className="flex flex-col gap-2">
           <label htmlFor="query" className="text-sm font-medium">
-            SQL Query
+            Select Query
           </label>
           <div className="relative">
             <Textarea
