@@ -26,37 +26,37 @@ type DatabaseSchema = {
 
 const databaseSchema: DatabaseSchema = {
     "department": [
-        ["id", "char(4)", ["PK"]],
+        ["id", "int", ["PK"]],
         ["dept_name", "varchar(40)", ["-"]]
     ],
     "department_employee": [
-        ["employee_id", "bigint", ["PK", "FK->employee"]],
-        ["department_id", "char(4)", ["PK", "FK->department"]],
+        ["employee_id", "int", ["PK", "FK->employee"]],
+        ["department_id", "int", ["PK", "FK->department"]],
         ["from_date", "date", ["-"]],
         ["to_date", "date", ["-"]]
     ],
     "department_manager": [
-        ["employee_id", "bigint", ["PK", "FK->employee"]],
-        ["department_id", "char(4)", ["PK", "FK->department"]],
+        ["employee_id", "int", ["PK", "FK->employee"]],
+        ["department_id", "int", ["PK", "FK->department"]],
         ["from_date", "date", ["-"]],
         ["to_date", "date", ["-"]]
     ],
     "employee": [
-        ["id", "bigint", ["PK"]],
+        ["id", "int", ["PK"]],
         ["birth_date", "date", ["-"]],
         ["first_name", "varchar(14)", ["-"]],
-        ["gender", "enum('M', 'F')", ["-"]],
+        ["gender", "employee_gender('M', 'F', 'X')", ["-"]],
         ["hire_date", "date", ["-"]],
         ["last_name", "varchar(16)", ["-"]]
     ],
     "salary": [
-        ["employee_id", "bigint", ["PK", "FK->employee"]],
-        ["amount", "bigint", ["-"]],
+        ["employee_id", "int", ["PK", "FK->employee"]],
+        ["amount", "int", ["-"]],
         ["from_date", "date", ["PK"]],
         ["to_date", "date", ["-"]]
     ],
     "title": [
-        ["employee_id", "bigint", ["PK", "FK->employee"]],
+        ["employee_id", "int", ["PK", "FK->employee"]],
         ["title", "varchar(50)", ["PK"]],
         ["from_date", "date", ["PK"]],
         ["to_date", "date", ["-"]]
