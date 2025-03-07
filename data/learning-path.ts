@@ -5,9 +5,17 @@ export interface PathItem {
     description: string
 }
 
+// Question interface for quiz questions
+export interface Question {
+    question: string
+    correct: string
+    incorrect: string[]
+}
+
 // Learn content type
 export interface LearnItem extends PathItem {
     type: "learn"
+    questions: Question[]
 }
 
 // Practice content type
@@ -25,6 +33,28 @@ export const learningPath: LearningItem[] = [
         id: 1,
         title: "Introduction to PostgreSQL Indexes",
         description: "Learn the basics of PostgreSQL indexes and why they're important",
+        questions: [
+            {
+                question: "What is the capital of France?",
+                correct: "Paris",
+                incorrect: ["London", "Berlin", "Madrid"]
+            },
+            {
+                question: "Which planet is known as the Red Planet?",
+                correct: "Mars",
+                incorrect: ["Venus", "Jupiter", "Mercury"]
+            },
+            {
+                question: "What is the largest mammal?",
+                correct: "Blue Whale",
+                incorrect: ["Elephant", "Giraffe", "Hippopotamus"]
+            },
+            {
+                question: "Who painted the Mona Lisa?",
+                correct: "Leonardo da Vinci",
+                incorrect: ["Pablo Picasso", "Vincent van Gogh", "Michelangelo"]
+            }
+        ]
     },
     {
         type: "practice",
@@ -42,6 +72,28 @@ export const learningPath: LearningItem[] = [
         id: 3,
         title: "Index Types in PostgreSQL",
         description: "Explore the different types of indexes available in PostgreSQL",
+        questions: [
+            {
+                question: "What is the capital of France?",
+                correct: "Paris",
+                incorrect: ["London", "Berlin", "Madrid"]
+            },
+            {
+                question: "Which planet is known as the Red Planet?",
+                correct: "Mars",
+                incorrect: ["Venus", "Jupiter", "Mercury"]
+            },
+            {
+                question: "What is the largest mammal?",
+                correct: "Blue Whale",
+                incorrect: ["Elephant", "Giraffe", "Hippopotamus"]
+            },
+            {
+                question: "Who painted the Mona Lisa?",
+                correct: "Leonardo da Vinci",
+                incorrect: ["Pablo Picasso", "Vincent van Gogh", "Michelangelo"]
+            }
+        ]
     },
     {
         type: "practice",
@@ -55,6 +107,28 @@ export const learningPath: LearningItem[] = [
         id: 5,
         title: "Query Planning and Execution",
         description: "Understand how PostgreSQL uses indexes during query planning",
+        questions: [
+            {
+                question: "What is the capital of France?",
+                correct: "Paris",
+                incorrect: ["London", "Berlin", "Madrid"]
+            },
+            {
+                question: "Which planet is known as the Red Planet?",
+                correct: "Mars",
+                incorrect: ["Venus", "Jupiter", "Mercury"]
+            },
+            {
+                question: "What is the largest mammal?",
+                correct: "Blue Whale",
+                incorrect: ["Elephant", "Giraffe", "Hippopotamus"]
+            },
+            {
+                question: "Who painted the Mona Lisa?",
+                correct: "Leonardo da Vinci",
+                incorrect: ["Pablo Picasso", "Vincent van Gogh", "Michelangelo"]
+            }
+        ]
     },
 ]
 

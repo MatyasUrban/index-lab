@@ -2,38 +2,20 @@
 
 import type React from "react"
 
-import { useState, useEffect, useCallback } from "react"
-import {AlertCircle, ChevronUp, Info, Database, MousePointerClick, Repeat} from "lucide-react"
+import { useState, useEffect } from "react"
+import { AlertCircle } from "lucide-react"
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
 import { useSearchParams } from "next/navigation"
-import ReactFlow, { 
-    useNodesState, 
-    useEdgesState, 
-    addEdge, 
-    ConnectionLineType, 
-    Background, 
-    Panel 
-} from 'reactflow'
-import dagre from '@dagrejs/dagre'
-import 'reactflow/dist/style.css'
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Insight, learningConcepts } from "./components/Insight"
 import { PlanningExecutionInsight } from "./components/PlanningExecutionInsight"
 import { NodesInsight } from "./components/NodesInsight"
+import { FlowInsight } from "./components/FlowInsight"
+import { CostInsight } from "./components/CostInsight"
 
 type NodeInfo = {
     id: number
@@ -154,7 +136,6 @@ function analyzePlan(plan: any): AnalyzedPlan {
     }))
     console.log({graphNodes, reversedEdges})
 
-    const {nodes: layoutedNodes, edges: layoutedEdges} = getLayoutedElements(graphNodes, reversedEdges);
 
     // Convert the Set of unique node types to an array
     const uniqueNodeTypes = Array.from(nodeTypesSet);
@@ -165,70 +146,10 @@ function analyzePlan(plan: any): AnalyzedPlan {
         executionTime: plan["Execution Time"],
         startupTotalCostData,
         actualTimeData,
-        graphNodes: layoutedNodes,
-        graphEdges: layoutedEdges,
+        graphNodes,
+        graphEdges: reversedEdges,
         uniqueNodeTypes,
     }
-}
-
-const nodeWidth = 300
-const nodeHeight = 100
-
-const getLayoutedElements = (nodes: any[], edges: any[]) => {
-    const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}))
-    dagreGraph.setGraph({ rankdir: 'TB' })
-
-    nodes.forEach((node) => {
-        dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight })
-    })
-
-    edges.forEach((edge) => {
-        dagreGraph.setEdge(edge.source, edge.target)
-    })
-
-    dagre.layout(dagreGraph)
-
-    const newNodes = nodes.map((node) => {
-        const nodeWithPosition = dagreGraph.node(node.id)
-        return {
-            ...node,
-            targetPosition: 'top',
-            sourcePosition: 'bottom',
-            position: {
-                x: nodeWithPosition.x - nodeWidth / 2,
-                y: nodeWithPosition.y - nodeHeight / 2,
-            },
-        }
-    })
-    console.log({newNodes, edges})
-    return { nodes: newNodes, edges }
-}
-
-function DataFlow({ nodes, edges }: { nodes: any[], edges: any[] }) {
-    const [flowNodes, setNodes, onNodesChange] = useNodesState(nodes)
-    const [flowEdges, setEdges, onEdgesChange] = useEdgesState(edges)
-
-    // Add useEffect to update nodes and edges when props change
-    useEffect(() => {
-        setNodes(nodes);
-        setEdges(edges);
-    }, [nodes, edges, setNodes, setEdges]);
-
-    return (
-        <div style={{ width: '100%', height: '500px' }}>
-            <ReactFlow
-                nodes={flowNodes}
-                edges={flowEdges}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                connectionLineType={ConnectionLineType.SmoothStep}
-                fitView
-                style={{ backgroundColor: "#F7F9FB" }}
-            >
-                <Background />
-            </ReactFlow>
-        </div>
-    )
 }
 
 export default function AnalyzePage() {
@@ -273,36 +194,6 @@ export default function AnalyzePage() {
         }
     }
 
-    const nodeExpectedCostAnalysisContent = analyzedPlan && (
-        <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={analyzedPlan.startupTotalCostData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="node" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="startupCost" stackId="a" fill="hsl(var(--chart-1))" />
-                <Bar dataKey="totalCost" stackId="a" fill="hsl(var(--chart-2))" />
-            </BarChart>
-        </ResponsiveContainer>
-    )
-
-    const nodeActualTimeAnalysisContent = analyzedPlan && (
-        <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={analyzedPlan.actualTimeData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="node" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="startupCost" stackId="a" fill="hsl(var(--chart-1))" />
-                <Bar dataKey="totalCost" stackId="a" fill="hsl(var(--chart-2))" />
-            </BarChart>
-        </ResponsiveContainer>
-    )
-
-    const dataFlowContent = analyzedPlan && (
-        <DataFlow nodes={analyzedPlan.graphNodes} edges={analyzedPlan.graphEdges} />
-    )
-
     return (
         <div className="flex flex-col md:flex-row">
             <div className="w-full md:w-1/5 p-4 bg-background">
@@ -342,23 +233,19 @@ export default function AnalyzePage() {
                             nodes={analyzedPlan.nodes}
                             uniqueNodeTypes={analyzedPlan.uniqueNodeTypes}
                         />
-                        <Insight
-                            title="Data Flow"
-                            description="Visual representation of how data flows through different nodes in your query execution plan. This helps understand the relationships and dependencies between different operations."
-                            learnings={["indexOnlyScan", "seqScan"]}
-                            content={dataFlowContent}
+                        <FlowInsight
+                            graphNodes={analyzedPlan.graphNodes}
+                            graphEdges={analyzedPlan.graphEdges}
                         />
-                        <Insight
+                        <CostInsight
                             title="Expected Node Startup & Total Cost"
                             description="This insight helps you understand the cost distribution across different nodes in your query execution plan. By comparing startup and total costs, you can identify potential bottlenecks and optimization opportunities."
-                            learnings={["startupCost", "totalCost"]}
-                            content={nodeExpectedCostAnalysisContent}
+                            data={analyzedPlan.startupTotalCostData}
                         />
-                        <Insight
+                        <CostInsight
                             title="Actual Node Startup & Total Time (in ms)"
-                            description="This insight helps you understand the cost distribution across different nodes in your query execution plan. By comparing startup and total costs, you can identify potential bottlenecks and optimization opportunities."
-                            learnings={["startupCost", "totalCost"]}
-                            content={nodeActualTimeAnalysisContent}
+                            description="This insight helps you understand the actual time distribution across different nodes in your query execution plan. By comparing startup and total times, you can identify real bottlenecks in your query execution."
+                            data={analyzedPlan.actualTimeData}
                         />
                     </div>
                 )}

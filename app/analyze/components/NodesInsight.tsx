@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Insight } from "./Insight";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 type NodeInfo = {
     id: number
@@ -39,9 +40,22 @@ function NodeDetailsDialog({ node }: { node: NodeInfo }) {
                     </DialogDescription>
                 </DialogHeader>
                 <div className="overflow-auto flex-1">
-                    <pre className="text-xs p-4 bg-gray-100 dark:bg-gray-800 rounded-md overflow-auto">
-                        {JSON.stringify(node.details, null, 2)}
-                    </pre>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-1/3 sticky top-0 bg-background z-10">Property</TableHead>
+                                <TableHead className="sticky top-0 bg-background z-10">Value</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {Object.entries(node.details).map(([key, value]) => (
+                                <TableRow key={key}>
+                                    <TableCell className="font-medium">{key}</TableCell>
+                                    <TableCell>{typeof value === 'object' ? JSON.stringify(value) : String(value)}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
                 </div>
             </DialogContent>
         </Dialog>
