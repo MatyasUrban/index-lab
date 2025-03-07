@@ -1,8 +1,6 @@
-import Link from "next/link"
-import { BookOpen, BarChart2, MonitorSmartphone } from "lucide-react"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { MonitorSmartphone } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { FeatureCard } from "@/app/components/FeatureCard"
 
 export default function Home() {
   return (
@@ -28,49 +26,21 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            <Card className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-md">
-              <CardHeader className="text-center pb-2">
-                <div className="mx-auto bg-primary/10 p-4 rounded-full mb-4">
-                  <BookOpen className="h-10 w-10 text-primary" />
-                </div>
-                <CardTitle className="text-2xl">Learning Path</CardTitle>
-                <CardDescription>Master PostgreSQL indexing concepts step by step</CardDescription>
-              </CardHeader>
-              <CardContent className="text-center pb-2">
-                <p className="text-muted-foreground">
-                  Comprehensive tutorials and guides to understand how PostgreSQL indexes work and how to optimize them.
-                </p>
-              </CardContent>
-              <CardFooter className="flex justify-center pt-2">
-                <Button asChild>
-                  <Link href="/learn">Start Learning</Link>
-                </Button>
-              </CardFooter>
-            </Card>
+            <FeatureCard 
+              iconName="BookOpen"
+              title="Learning Path"
+              description="Comprehensive tutorials and guides to understand how PostgreSQL indexes work and how to optimize them."
+              buttonText="Start Learning"
+              href="/learn"
+            />
             
-            <Card className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-md">
-              <CardHeader className="text-center pb-2">
-                <div className="mx-auto bg-primary/10 p-4 rounded-full mb-4">
-                  <BarChart2 className="h-10 w-10 text-primary" />
-                </div>
-                <CardTitle className="text-2xl">Plan Analysis</CardTitle>
-                <CardDescription>Analyze and optimize your database queries</CardDescription>
-              </CardHeader>
-              <CardContent className="text-center pb-2">
-                <p className="text-muted-foreground">
-                  Interactive tools to analyze query execution plans and identify opportunities for index optimization.
-                </p>
-              </CardContent>
-              <CardFooter className="flex justify-center pt-2">
-                <Button asChild>
-                  <Link href="/analyze">Start Analyzing</Link>
-                </Button>
-              </CardFooter>
-            </Card>
-          </div>
-          
-          <div className="mt-16 text-center text-muted-foreground">
-            <p>This application requires a large screen for the best experience.</p>
+            <FeatureCard 
+              iconName="BarChart2"
+              title="Plan Analysis"
+              description="Interactive tools to analyze query execution plans and identify opportunities for index optimization."
+              buttonText="Start Analyzing"
+              href="/analyze"
+            />
           </div>
         </main>
       </div>

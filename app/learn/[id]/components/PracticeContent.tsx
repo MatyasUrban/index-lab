@@ -1,0 +1,22 @@
+"use client"
+
+import React from 'react'
+import { PracticeItem } from "@/data/learning-path"
+import { PracticeInfo } from "./PracticeInfo"
+import { PracticeImplementation } from "./PracticeImplementation"
+
+interface PracticeContentProps {
+  item: PracticeItem
+}
+
+export function PracticeContent({ item }: PracticeContentProps) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-background">
+      {/* Left Column - Practice Info */}
+      <PracticeInfo item={item} />
+
+      {/* Right Column - Practice Implementation */}
+      <PracticeImplementation item={item} />
+    </div>
+  )
+} 

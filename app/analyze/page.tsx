@@ -31,91 +31,9 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-
-// Define types for learning concepts
-type LearningConcept = {
-    title: string
-    description: string
-}
-
-type LearningConcepts = {
-    [key: string]: LearningConcept
-}
-
-// Define learning concepts
-const learningConcepts: LearningConcepts = {
-    startupCost: {
-        title: "Startup Cost",
-        description:
-          "The estimated cost to get to the first row of output. This includes the cost of initialization and preparation before actual data retrieval begins.",
-      },
-      totalCost: {
-        title: "Total Cost",
-        description:
-          "The estimated total cost to retrieve all rows. This includes the startup cost plus the cost of processing all rows.",
-      },
-      planningTime: {
-        title: "Planning Time",
-        description: "The time taken by the PostgreSQL query planner to generate an execution plan for the query.",
-      },
-      executionTime: {
-        title: "Execution Time",
-        description: "The actual time taken to execute the query and retrieve the results.",
-      },
-      indexOnlyScan: {
-        title: "Index Only Scan",
-        description:
-          "A scan that can retrieve all needed data from the index without accessing the table. This is typically faster than a regular index scan.",
-      },
-      seqScan: {
-        title: "Sequential Scan",
-        description:
-          "A scan that reads all rows from a table sequentially. This can be slow for large tables if an appropriate index is not used.",
-      },
-    // Add more concepts as needed
-}
-
-type InsightProps = {
-    title: string
-    description: string
-    learnings: string[]
-    content: React.ReactNode
-}
-
-function Insight({ title, description, learnings, content }: InsightProps) {
-    return (
-        <Card className="w-full">
-            <CardHeader>
-                <CardTitle>{title}</CardTitle>
-                <CardDescription>{description}</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="mb-4">
-                    <h4 className="text-sm font-semibold mb-2">Key Concepts:</h4>
-                    <div className="flex gap-2 flex-wrap">
-                        {learnings.map((concept) => (
-                            <Dialog key={concept}>
-                                <DialogTrigger asChild>
-                                    <Badge variant="secondary" className="cursor-pointer">
-                                        <Info className="mr-1 h-3 w-3" />
-                                        {learningConcepts[concept].title}
-                                    </Badge>
-                                </DialogTrigger>
-                                <DialogContent>
-                                    <DialogHeader>
-                                        <DialogTitle>{learningConcepts[concept].title}</DialogTitle>
-                                        <DialogDescription>{learningConcepts[concept].description}</DialogDescription>
-                                    </DialogHeader>
-                                </DialogContent>
-                            </Dialog>
-                        ))}
-                    </div>
-                </div>
-                {content}
-            </CardContent>
-        </Card>
-    )
-}
+import { Insight, learningConcepts } from "./components/Insight"
+import { PlanningExecutionInsight } from "./components/PlanningExecutionInsight"
+import { NodesInsight } from "./components/NodesInsight"
 
 type NodeInfo = {
     id: number
@@ -148,6 +66,7 @@ type AnalyzedPlan = {
     actualTimeData: costData[],
     graphNodes: GraphNode[],
     graphEdges: GraphEdge[]
+    uniqueNodeTypes: string[]
 }
 
 type costData = { node: string; startupCost: number; totalCost: number }
@@ -162,6 +81,7 @@ function analyzePlan(plan: any): AnalyzedPlan {
     const graphEdges: AnalyzedPlan['graphEdges'] = []
     const position = { x: 0, y: 0 }
     const animated = true;
+    const nodeTypesSet = new Set<string>();
 
     while (queue.length > 0) {
         const [node, id, parentChildren] = queue.shift()!
@@ -223,6 +143,7 @@ function analyzePlan(plan: any): AnalyzedPlan {
             data: { label },
             position
         })
+        nodeTypesSet.add(nodeInfo.type);
     }
 
     // Reverse the edges (swap source and target)
@@ -235,6 +156,9 @@ function analyzePlan(plan: any): AnalyzedPlan {
 
     const {nodes: layoutedNodes, edges: layoutedEdges} = getLayoutedElements(graphNodes, reversedEdges);
 
+    // Convert the Set of unique node types to an array
+    const uniqueNodeTypes = Array.from(nodeTypesSet);
+
     return {
         nodes,
         planningTime: plan["Planning Time"],
@@ -243,46 +167,9 @@ function analyzePlan(plan: any): AnalyzedPlan {
         actualTimeData,
         graphNodes: layoutedNodes,
         graphEdges: layoutedEdges,
+        uniqueNodeTypes,
     }
 }
-
-  function NodeDetailsDialog({ node }: { node: NodeInfo }) {
-    return (
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <Info className="h-4 w-4" />
-            <span className="sr-only">View node details</span>
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle>
-              Node {node.id} Details: {node.type}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="overflow-auto flex-1">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-1/3 sticky top-0 bg-background z-10">Property</TableHead>
-                  <TableHead className="sticky top-0 bg-background z-10">Value</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {Object.entries(node.details).map(([key, value]) => (
-                  <TableRow key={key}>
-                    <TableCell className="font-medium">{key}</TableCell>
-                    <TableCell>{JSON.stringify(value)}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        </DialogContent>
-      </Dialog>
-    )
-  }
 
 const nodeWidth = 300
 const nodeHeight = 100
@@ -348,14 +235,12 @@ export default function AnalyzePage() {
     const searchParams = useSearchParams()
     const [planInput, setPlanInput] = useState("")
     const [error, setError] = useState<string | null>(null)
-    const [hoveredNodeId, setHoveredNodeId] = useState<number | null>(null)
     const [analyzedPlan, setAnalyzedPlan] = useState<AnalyzedPlan | null>(null)
 
     useEffect(() => {
         const plan = searchParams.get("plan")
         if (plan) {
             try {
-                // Decode and parse to validate it's proper JSON
                 const decodedPlan = decodeURIComponent(plan)
                 JSON.parse(decodedPlan) // Validate JSON
                 setPlanInput(decodedPlan)
@@ -389,7 +274,7 @@ export default function AnalyzePage() {
     }
 
     const nodeExpectedCostAnalysisContent = analyzedPlan && (
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={400}>
             <BarChart data={analyzedPlan.startupTotalCostData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="node" />
@@ -412,72 +297,6 @@ export default function AnalyzePage() {
                 <Bar dataKey="totalCost" stackId="a" fill="hsl(var(--chart-2))" />
             </BarChart>
         </ResponsiveContainer>
-    )
-
-    const planningExecutionTimeContent = analyzedPlan && (
-        <div className="flex gap-4">
-            <div className="flex-1 bg-blue-100 dark:bg-blue-900 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-2">Planning Time</h3>
-                <p className="text-3xl font-bold">{analyzedPlan.planningTime.toFixed(3)} ms</p>
-            </div>
-            <div className="flex-1 bg-green-100 dark:bg-green-900 p-4 rounded-lg">
-                <h3 className="text-lg font-semibold mb-2">Execution Time</h3>
-                <p className="text-3xl font-bold">{analyzedPlan.executionTime.toFixed(3)} ms</p>
-            </div>
-        </div>
-    )
-
-    const nodesContent = analyzedPlan && (
-        <div className="flex flex-wrap gap-4">
-            {analyzedPlan.nodes.map((node) => (
-                <div
-                    key={node.id}
-                    className={`bg-gray-100 dark:bg-gray-800 p-4 rounded-lg flex flex-col transition-all duration-200 ${
-                        hoveredNodeId === node.id
-                            ? "outline outline-4 outline-pink-500"
-                            : hoveredNodeId !== null && node.children.includes(hoveredNodeId)
-                                ? "bg-pink-200 dark:bg-pink-800"
-                                : ""
-                    }`}
-                    onMouseEnter={() => setHoveredNodeId(node.id)}
-                    onMouseLeave={() => setHoveredNodeId(null)}
-                >
-                    <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="bg-black text-gray-200 border-black">
-                                Node {node.id}
-                            </Badge>
-                            <Badge variant="outline" className="flex items-center gap-1 bg-indigo-100 dark:bg-indigo-900 text-indigo-900 dark:text-indigo-100 border-indigo-100 dark:border-indigo-900">
-                                <Repeat className="h-3 w-3" />
-                                <span className="text-xs font-medium">{node.loops}</span>
-                            </Badge>
-                        </div>
-                        <NodeDetailsDialog node={node} />
-                    </div>
-                    <h3 className="text-lg font-semibold">{node.type}</h3>
-                    <div className="min-h-6 text-sm mt-1">
-                        {node.relation && <div className="flex items-center gap-2"><Database className="h-4 w-4" /><span>{node.relation}</span></div>}
-                    </div>
-                    <div className="min-h-6 text-sm mt-1 mb-2">
-                        {node.index && <div className="flex items-center gap-2"><MousePointerClick className="h-4 w-4" /><span>{node.index}</span></div>}
-                    </div>
-                    {node.children.length > 0 && (
-                        <div className="flex gap-2 mt-auto">
-                            <ChevronUp className="h-4 w-4 mr-1" />
-                            {node.children.map((childId) => (
-                                <Badge
-                                    key={childId}
-                                    variant="outline"
-                                    className={`transition-all duration-200`}
-                                >
-                                    Node {childId}
-                                </Badge>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            ))}
-        </div>
     )
 
     const dataFlowContent = analyzedPlan && (
@@ -515,17 +334,13 @@ export default function AnalyzePage() {
 
                 {analyzedPlan && (
                     <div className="space-y-4">
-                        <Insight
-                            title="Planning and Execution Time"
-                            description="Understanding the time spent on planning versus execution can help you optimize your queries and database structure."
-                            learnings={["planningTime", "executionTime"]}
-                            content={planningExecutionTimeContent}
+                        <PlanningExecutionInsight
+                            planningTime={analyzedPlan.planningTime}
+                            executionTime={analyzedPlan.executionTime}
                         />
-                        <Insight
-                            title="Query Plan Nodes"
-                            description="These nodes represent the steps taken to execute your query. Understanding the node types and their relationships can help you optimize your query structure and indexing strategy."
-                            learnings={["indexOnlyScan", "seqScan"]}
-                            content={nodesContent}
+                        <NodesInsight
+                            nodes={analyzedPlan.nodes}
+                            uniqueNodeTypes={analyzedPlan.uniqueNodeTypes}
                         />
                         <Insight
                             title="Data Flow"

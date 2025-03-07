@@ -1,16 +1,23 @@
-export type LearningItem = {
+// Base type for all path items
+export interface PathItem {
     id: number
     title: string
     description: string
-} & (
-    | {
+}
+
+// Learn content type
+export interface LearnItem extends PathItem {
     type: "learn"
 }
-    | {
+
+// Practice content type
+export interface PracticeItem extends PathItem {
     type: "practice"
     hints: string[]
 }
-    )
+
+// Union type for all learning path items
+export type LearningItem = LearnItem | PracticeItem
 
 export const learningPath: LearningItem[] = [
     {

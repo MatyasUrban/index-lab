@@ -1,13 +1,13 @@
 "use client"
 
 import React, { useState } from 'react'
-import { LearningItem } from "@/data/learning-path"
+import { PracticeItem } from "@/data/learning-path"
 import { ResultType } from "@/app/types/sql-practice"
 import { PracticeInputComponent } from "./PracticeInputComponent"
 import { PracticeResultDisplay } from "./PracticeResultDisplay"
 
 interface PracticeImplementationProps {
-  item: LearningItem & { type: "practice" }
+  item: PracticeItem
 }
 
 export function PracticeImplementation({ item }: PracticeImplementationProps) {

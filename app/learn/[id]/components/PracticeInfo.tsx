@@ -1,12 +1,12 @@
 "use client"
 
-import { type LearningItem } from "@/data/learning-path"
+import { type PracticeItem } from "@/data/learning-path"
 import { PracticeDescription } from "./PracticeDescription"
 import { PracticeSchema } from "./PracticeSchema"
 import { PracticeHints } from "./PracticeHints"
 
 interface PracticeInfoProps {
-  item: LearningItem & { type: "practice" }
+  item: PracticeItem
 }
 
 export function PracticeInfo({ item }: PracticeInfoProps) {
