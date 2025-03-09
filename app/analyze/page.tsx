@@ -4,29 +4,11 @@ import type React from "react";
 
 import { useState, useEffect } from "react";
 import { AlertCircle } from "lucide-react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
 import { useSearchParams } from "next/navigation";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Insight, learningConcepts } from "./components/Insight";
 import { PlanningExecutionInsight } from "./components/PlanningExecutionInsight";
 import { NodesInsight } from "./components/NodesInsight";
 import { FlowInsight } from "./components/FlowInsight";
@@ -143,7 +125,6 @@ function analyzePlan(plan: any): AnalyzedPlan {
     nodeTypesSet.add(nodeInfo.type);
   }
 
-  // Reverse the edges (swap source and target)
   const reversedEdges = graphEdges.map((edge) => ({
     ...edge,
     source: edge.target,
@@ -151,7 +132,6 @@ function analyzePlan(plan: any): AnalyzedPlan {
   }));
   console.log({ graphNodes, reversedEdges });
 
-  // Convert the Set of unique node types to an array
   const uniqueNodeTypes = Array.from(nodeTypesSet);
 
   return {

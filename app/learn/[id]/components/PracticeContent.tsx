@@ -12,10 +12,7 @@ interface PracticeContentProps {
 export function PracticeContent({ item }: PracticeContentProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-background">
-      {/* Left Column - Practice Info */}
       <PracticeInfo item={item} />
-
-      {/* Right Column - Practice Implementation */}
       <PracticeImplementation item={item} />
     </div>
   );

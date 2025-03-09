@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { ResultType } from "@/app/types/sql-practice";
-import { Pool } from "pg";
+import { Pool, QueryResult } from "pg";
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
-// Reference solutions map
 const referenceSolutions: Record<
   string,
   { preparationQuery: string; selectQuery: string }
@@ -27,13 +25,11 @@ const referenceSolutions: Record<
   },
 };
 
-// Helper function to convert query results to comparable sets
-function resultToSet(queryResult: any): Set<string> {
-  return new Set(queryResult.rows.map((row: any) => JSON.stringify(row)));
+function resultToSet(queryResult: QueryResult): Set<string> {
+  return new Set(queryResult.rows.map((row) => JSON.stringify(row)));
 }
 
-// Helper function to extract execution time from EXPLAIN ANALYZE JSON output
-function getExecutionTime(explainResult: any): number {
+function getExecutionTime(explainResult: QueryResult): number {
   try {
     // The result comes as { rows: [{ 'QUERY PLAN': [Array] }] }
     const queryPlan = explainResult.rows[0]["QUERY PLAN"];
@@ -44,7 +40,6 @@ function getExecutionTime(explainResult: any): number {
   }
 }
 
-// Helper function to add a small delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Interface for the request body
@@ -52,6 +47,17 @@ interface EvaluateRequestBody {
   preparationQuery: string;
   selectQuery: string;
 }
+
+export type EvaluationResponseType = {
+  error?: string;
+  correct?: boolean;
+  performant?: boolean;
+  usersTime?: number;
+  referenceTime?: number;
+  usersRows?: Record<string, any>[];
+  referenceRows?: Record<string, any>[];
+  usersPlan?: string;
+};
 
 export async function POST(
   request: NextRequest,
@@ -61,7 +67,6 @@ export async function POST(
   const writer = responseStream.writable.getWriter();
   const encoder = new TextEncoder();
 
-  // Start the processing in the background
   evaluateWithUpdates(request, { params }, writer, encoder);
 
   return new NextResponse(responseStream.readable, {
@@ -72,6 +77,8 @@ export async function POST(
     },
   });
 }
+
+
 
 async function evaluateWithUpdates(
   request: NextRequest,
@@ -106,7 +113,7 @@ async function evaluateWithUpdates(
 
       const referenceSolution = referenceSolutions[practiceTaskId];
 
-      const result: ResultType = {
+      const result: EvaluationResponseType = {
         correct: false,
         performant: false,
         usersTime: undefined,
@@ -116,11 +123,10 @@ async function evaluateWithUpdates(
         usersPlan: undefined,
       };
 
-      // Get a client from the pool
       const client = await pool.connect();
 
       try {
-        // Step 1: Running reference preparation queries (0%)
+        // Step 1: Running reference preparation queries
         await writer.write(
           encoder.encode(
             `data: ${JSON.stringify({
@@ -141,7 +147,7 @@ async function evaluateWithUpdates(
           await client.query(referenceSolution.preparationQuery);
         }
 
-        // Step 2: Running reference select queries (15%)
+        // Step 2: Running reference select queries
         await writer.write(
           encoder.encode(
             `data: ${JSON.stringify({
@@ -164,7 +170,7 @@ async function evaluateWithUpdates(
         const referenceExplain = await client.query(explainReferenceQuery);
         result.referenceTime = getExecutionTime(referenceExplain);
 
-        // Step 3: Restoring the database (30%)
+        // Step 3: Restoring the database
         await writer.write(
           encoder.encode(
             `data: ${JSON.stringify({
@@ -179,7 +185,7 @@ async function evaluateWithUpdates(
 
         await client.query("ROLLBACK");
 
-        // Step 4: Running user's preparation queries (45%)
+        // Step 4: Running user's preparation queries
         await writer.write(
           encoder.encode(
             `data: ${JSON.stringify({
@@ -200,7 +206,7 @@ async function evaluateWithUpdates(
           await client.query(preparationQuery);
         }
 
-        // Step 5: Running user's select queries (60%)
+        // Step 5: Running user's select queries
         await writer.write(
           encoder.encode(
             `data: ${JSON.stringify({
@@ -213,7 +219,6 @@ async function evaluateWithUpdates(
         );
         await delay(500);
 
-        // Run user select query
         const usersQueryResult = await client.query(selectQuery);
         result.usersRows = usersQueryResult.rows;
 
@@ -224,7 +229,7 @@ async function evaluateWithUpdates(
         // Store the full plan for visualization
         result.usersPlan = userExplain.rows[0]["QUERY PLAN"];
 
-        // Step 6: Restoring the database (75%)
+        // Step 6: Restoring the database
         await writer.write(
           encoder.encode(
             `data: ${JSON.stringify({
@@ -265,10 +270,10 @@ async function evaluateWithUpdates(
           result.usersTime !== undefined &&
           result.referenceTime !== undefined
         ) {
-          result.performant = result.usersTime < result.referenceTime;
+          result.performant = result.usersTime < result.referenceTime * 1.5;
         }
 
-        // Send final result (100%)
+        // Send final result
         await writer.write(
           encoder.encode(
             `data: ${JSON.stringify({
@@ -279,7 +284,6 @@ async function evaluateWithUpdates(
           ),
         );
       } catch (dbError) {
-        // Rollback transaction on error
         await client.query("ROLLBACK");
         console.error("Database error:", dbError);
         await writer.write(
@@ -292,7 +296,6 @@ async function evaluateWithUpdates(
           ),
         );
       } finally {
-        // Release client back to pool
         client.release();
       }
     } catch (parseError) {

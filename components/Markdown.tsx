@@ -1,6 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import Image from "next/image";
 
 interface MarkdownProps {
   content?: string;
@@ -104,7 +105,7 @@ export function Markdown({ content, contentId }: MarkdownProps) {
 
             return (
               <span className="block my-4">
-                <img
+                <Image
                   src={imageSrc}
                   alt={alt || ""}
                   className="rounded max-w-full h-auto"

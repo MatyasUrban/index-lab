@@ -14,7 +14,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { learningPath, Question, LearnItem } from "@/data/learning-path";
+import { learningPath, LearnItem } from "@/data/learning-path";
 
 type QuizState = "start" | "question" | "feedback" | "results";
 

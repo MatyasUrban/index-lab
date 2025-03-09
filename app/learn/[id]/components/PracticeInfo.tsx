@@ -12,13 +12,8 @@ interface PracticeInfoProps {
 export function PracticeInfo({ item }: PracticeInfoProps) {
   return (
     <div className="flex flex-col gap-4">
-      {/* Task Description */}
       <PracticeDescription itemId={item.id} />
-
-      {/* Database Schema Button */}
       <PracticeSchema />
-
-      {/* Hints */}
       <PracticeHints hints={item.hints} />
     </div>
   );

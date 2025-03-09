@@ -18,7 +18,6 @@ export function PracticeResultExecutionTimes({
     <div className="mt-4">
       <h4 className="text-sm font-medium mb-2">Execution time</h4>
       <div className="grid grid-cols-2 gap-4 w-full max-w-[300px] mx-auto">
-        {/* Bar graphs */}
         <div className="h-32 flex items-end justify-center">
           <div
             className="w-16 bg-blue-500"
@@ -35,7 +34,6 @@ export function PracticeResultExecutionTimes({
             }}
           ></div>
         </div>
-        {/* Labels */}
         <div className="text-center">
           <p className="font-bold">{userTime.toFixed(3)}ms</p>
           <p className="text-sm">Your solution</p>

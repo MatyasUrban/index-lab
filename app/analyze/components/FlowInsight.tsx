@@ -4,13 +4,11 @@ import ReactFlow, {
   useEdgesState,
   ConnectionLineType,
   Background,
-  Panel,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import dagre from "@dagrejs/dagre";
 import { Insight } from "./Insight";
 
-// Add the node size constants
 const nodeWidth = 300;
 const nodeHeight = 100;
 

@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 
-// Define types for learning concepts
 export type LearningConcept = {
   title: string;
   description: string;
@@ -27,7 +26,6 @@ export type LearningConcepts = {
   [key: string]: LearningConcept;
 };
 
-// Define learning concepts
 export const learningConcepts: LearningConcepts = {
   startupCost: {
     title: "Startup Cost",
@@ -59,7 +57,6 @@ export const learningConcepts: LearningConcepts = {
     description:
       "A scan that reads all rows from a table sequentially. This can be slow for large tables if an appropriate index is not used.",
   },
-  // Add more concepts as needed
 };
 
 export type InsightProps = {
@@ -75,7 +72,6 @@ export function Insight({
   learnings,
   content,
 }: InsightProps) {
-  // Filter out learning concepts that don't exist in the map
   const validLearnings = learnings.filter(
     (concept) => learningConcepts[concept],
   );

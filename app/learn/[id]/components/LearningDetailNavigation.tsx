@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
-import { LearningItem, learningPath } from "@/data/learning-path";
+import { learningPath } from "@/data/learning-path";
 
 interface LearningDetailNavigationProps {
   currentItemId: number;

@@ -7,12 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 
 interface PracticeInputComponentProps {
-  onSubmit: (preparationQuery: string, selectQuery: string) => void;
+  onSubmitAction: (preparationQuery: string, selectQuery: string) => void;
   loading: boolean;
 }
 
 export function PracticeInputComponent({
-  onSubmit,
+  onSubmitAction,
   loading,
 }: PracticeInputComponentProps) {
   const prepQueryRef = useRef<HTMLInputElement>(null);
@@ -27,7 +27,7 @@ export function PracticeInputComponent({
     }
 
     const prepQuery = prepQueryRef.current?.value.trim() || "";
-    onSubmit(prepQuery, selectQuery);
+    onSubmitAction(prepQuery, selectQuery);
   };
 
   return (

@@ -13,7 +13,6 @@ export function PracticeResultCardTable({
   emptyMessage = "No data available",
   className = "",
 }: PracticeResultCardTableProps) {
-  // If no rows, show empty message
   if (!rows || rows.length === 0) {
     return (
       <div className={`p-4 text-center text-gray-500 ${className}`}>
@@ -22,11 +21,9 @@ export function PracticeResultCardTable({
     );
   }
 
-  // Limit rows to maxRows
   const displayRows = rows.slice(0, maxRows);
   const hasMoreRows = rows.length > maxRows;
 
-  // Get column headers from the first row
   const columns = Object.keys(displayRows[0]);
 
   return (

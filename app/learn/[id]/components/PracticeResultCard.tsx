@@ -3,14 +3,14 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ResultType } from "@/app/types/sql-practice";
 import { PracticeResultSummary } from "./PracticeResultSummary";
 import { PracticeResultExecutionTimes } from "./PracticeResultExecutionTimes";
 import { PracticePlanButtons } from "./PracticePlanButtons";
 import { PracticeResultCardTable } from "./PracticeResultCardTable";
+import { EvaluationResponseType } from "@/app/api/evaluate/[practiceTaskId]/route";
 
 interface PracticeResultCardProps {
-  result: ResultType;
+  result: EvaluationResponseType;
   className?: string;
 }
 
@@ -27,7 +27,6 @@ export function PracticeResultCard({
           <TabsTrigger value="received">Received Recordset</TabsTrigger>
         </TabsList>
 
-        {/* Evaluation Tab */}
         <TabsContent value="evaluation" className="p-4">
           <div className="flex flex-col gap-4">
             <PracticeResultSummary
@@ -47,7 +46,6 @@ export function PracticeResultCard({
           </div>
         </TabsContent>
 
-        {/* Expected Recordset Tab */}
         <TabsContent value="expected">
           <PracticeResultCardTable
             rows={result.referenceRows || []}
@@ -55,7 +53,6 @@ export function PracticeResultCard({
           />
         </TabsContent>
 
-        {/* Received Recordset Tab */}
         <TabsContent value="received">
           <PracticeResultCardTable
             rows={result.usersRows || []}

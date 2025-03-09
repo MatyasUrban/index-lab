@@ -5,13 +5,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, AlertCircle, InfoIcon } from "lucide-react";
-import { ResultType } from "@/app/types/sql-practice";
 import { PracticeResultCard } from "./PracticeResultCard";
+import { EvaluationResponseType } from "@/app/api/evaluate/[practiceTaskId]/route";
 
 interface PracticeResultDisplayProps {
   loading: boolean;
   submitted: boolean;
-  result: ResultType | null;
+  result: EvaluationResponseType | null;
   progress?: { value: number; message: string } | null;
 }
 
@@ -21,7 +21,6 @@ export function PracticeResultDisplay({
   result,
   progress,
 }: PracticeResultDisplayProps) {
-  // No result, not loading, not submitted - Show info alert
   if (!loading && !submitted && !result) {
     return (
       <Alert className="mt-4">
@@ -35,7 +34,6 @@ export function PracticeResultDisplay({
     );
   }
 
-  // Loading state - Show progress
   if (loading) {
     return (
       <Card className="mt-4">
@@ -60,7 +58,6 @@ export function PracticeResultDisplay({
     );
   }
 
-  // Error state - Show error alert
   if (result?.error) {
     return (
       <Alert variant="destructive" className="mt-4">
@@ -73,12 +70,10 @@ export function PracticeResultDisplay({
     );
   }
 
-  // Normal result - Show result card
   if (submitted && result) {
     return <PracticeResultCard result={result} />;
   }
 
-  // Fallback - Should not reach here
   return (
     <Alert className="mt-4">
       <InfoIcon className="h-4 w-4" />

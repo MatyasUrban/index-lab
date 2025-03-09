@@ -11,11 +11,9 @@ import {
 } from "@/components/ui/card";
 import { BookOpen, BarChart2, LucideIcon } from "lucide-react";
 
-// Map of icon names to components
 const ICONS: Record<string, LucideIcon> = {
   BookOpen,
   BarChart2,
-  // Add more icons as needed
 };
 
 interface FeatureCardProps {
@@ -33,8 +31,7 @@ export function FeatureCard({
   buttonText,
   href,
 }: FeatureCardProps) {
-  // Get the icon component from the map
-  const Icon = ICONS[iconName] || BookOpen; // Default to BookOpen if icon not found
+  const Icon = ICONS[iconName] || BookOpen;
 
   return (
     <Card className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-md">

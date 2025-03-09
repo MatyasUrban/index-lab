@@ -20,7 +20,6 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Database } from "lucide-react";
 
-// Database schema data
 type ColumnConstraint = "PK" | "FK->employee" | "FK->department" | "-";
 type TableColumn = [string, string, ColumnConstraint[]];
 type DatabaseSchema = {

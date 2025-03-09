@@ -5,7 +5,6 @@ import { FeatureCard } from "@/app/components/FeatureCard";
 export default function Home() {
   return (
     <>
-      {/* Small/Medium device message */}
       <div className="lg:hidden container mx-auto px-4 py-8 flex flex-col items-center justify-center min-h-[80vh]">
         <Alert className="max-w-md">
           <MonitorSmartphone className="h-5 w-5" />
