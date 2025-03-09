@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import React from 'react'
+import React from "react";
 
 interface PracticeResultExecutionTimesProps {
-  userTime: number
-  referenceTime: number
+  userTime: number;
+  referenceTime: number;
 }
 
-export function PracticeResultExecutionTimes({ 
-  userTime, 
-  referenceTime 
+export function PracticeResultExecutionTimes({
+  userTime,
+  referenceTime,
 }: PracticeResultExecutionTimesProps) {
   // Calculate the maximum time for scaling the bars
-  const maxTime = Math.max(userTime, referenceTime)
-  
+  const maxTime = Math.max(userTime, referenceTime);
+
   return (
     <div className="mt-4">
       <h4 className="text-sm font-medium mb-2">Execution time</h4>
@@ -46,5 +46,5 @@ export function PracticeResultExecutionTimes({
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}

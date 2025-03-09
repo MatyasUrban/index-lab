@@ -1,28 +1,33 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface PracticeExecutionPlanProps {
-  usersPlan: string | undefined
+  usersPlan: string | undefined;
 }
 
 export function PracticePlanButtons({ usersPlan }: PracticeExecutionPlanProps) {
-  const [showPlan, setShowPlan] = useState(false)
+  const [showPlan, setShowPlan] = useState(false);
 
   return (
     <div className="flex gap-2 mt-4 w-full">
       <Button className="w-1/2" onClick={() => setShowPlan(true)}>
         Read your execution plan
       </Button>
-      
-      <Button 
-        className="w-1/2" 
+
+      <Button
+        className="w-1/2"
         onClick={() => {
           if (usersPlan) {
             const planJson = encodeURIComponent(JSON.stringify(usersPlan));
-            window.open(`/analyze?plan=${planJson}`, '_blank');
+            window.open(`/analyze?plan=${planJson}`, "_blank");
           }
         }}
         disabled={!usersPlan}
@@ -39,12 +44,14 @@ export function PracticePlanButtons({ usersPlan }: PracticeExecutionPlanProps) {
           <div className="p-4">
             <div className="border p-4 rounded-md bg-white">
               <pre className="text-xs overflow-auto whitespace-pre-wrap">
-                {usersPlan ? JSON.stringify(usersPlan, null, 2) : 'No plan available'}
+                {usersPlan
+                  ? JSON.stringify(usersPlan, null, 2)
+                  : "No plan available"}
               </pre>
             </div>
           </div>
         </DialogContent>
       </Dialog>
     </div>
-  )
-} 
+  );
+}

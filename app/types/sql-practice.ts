@@ -14,4 +14,4 @@ export interface EvaluateRequestBody {
   selectQuery: string;
 }
 
-export interface EvaluateResponseBody extends ResultType {} 
+export interface EvaluateResponseBody extends ResultType {}

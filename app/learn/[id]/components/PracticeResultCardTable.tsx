@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface PracticeResultCardTableProps {
   rows: Record<string, any>[];
@@ -25,12 +25,14 @@ export function PracticeResultCardTable({
   // Limit rows to maxRows
   const displayRows = rows.slice(0, maxRows);
   const hasMoreRows = rows.length > maxRows;
-  
+
   // Get column headers from the first row
   const columns = Object.keys(displayRows[0]);
 
   return (
-    <div className={`max-h-[400px] overflow-auto border rounded-md ${className}`}>
+    <div
+      className={`max-h-[400px] overflow-auto border rounded-md ${className}`}
+    >
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50 sticky top-0">
           <tr>
@@ -48,7 +50,10 @@ export function PracticeResultCardTable({
           {displayRows.map((row, rowIndex) => (
             <tr key={rowIndex}>
               {Object.values(row).map((value, valueIndex) => (
-                <td key={valueIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td
+                  key={valueIndex}
+                  className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                >
                   {String(value)}
                 </td>
               ))}
@@ -56,7 +61,7 @@ export function PracticeResultCardTable({
           ))}
         </tbody>
       </table>
-      
+
       {hasMoreRows && (
         <div className="p-2 text-center text-sm text-gray-500 bg-gray-50 border-t">
           Showing {maxRows} of {rows.length} rows
@@ -64,4 +69,4 @@ export function PracticeResultCardTable({
       )}
     </div>
   );
-} 
+}

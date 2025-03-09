@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import React from 'react'
-import { PracticeItem } from "@/data/learning-path"
-import { PracticeInfo } from "./PracticeInfo"
-import { PracticeImplementation } from "./PracticeImplementation"
+import React from "react";
+import { PracticeItem } from "@/data/learning-path";
+import { PracticeInfo } from "./PracticeInfo";
+import { PracticeImplementation } from "./PracticeImplementation";
 
 interface PracticeContentProps {
-  item: PracticeItem
+  item: PracticeItem;
 }
 
 export function PracticeContent({ item }: PracticeContentProps) {
@@ -18,5 +18,5 @@ export function PracticeContent({ item }: PracticeContentProps) {
       {/* Right Column - Practice Implementation */}
       <PracticeImplementation item={item} />
     </div>
-  )
-} 
+  );
+}

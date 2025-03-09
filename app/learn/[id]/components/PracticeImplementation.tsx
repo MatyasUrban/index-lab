@@ -1,34 +1,40 @@
-"use client"
+"use client";
 
-import React, { useState } from 'react'
-import { PracticeItem } from "@/data/learning-path"
-import { ResultType } from "@/app/types/sql-practice"
-import { PracticeInputComponent } from "./PracticeInputComponent"
-import { PracticeResultDisplay } from "./PracticeResultDisplay"
+import React, { useState } from "react";
+import { PracticeItem } from "@/data/learning-path";
+import { ResultType } from "@/app/types/sql-practice";
+import { PracticeInputComponent } from "./PracticeInputComponent";
+import { PracticeResultDisplay } from "./PracticeResultDisplay";
 
 interface PracticeImplementationProps {
-  item: PracticeItem
+  item: PracticeItem;
 }
 
 export function PracticeImplementation({ item }: PracticeImplementationProps) {
   // State declarations
-  const [submitted, setSubmitted] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<ResultType | null>(null)
-  const [progress, setProgress] = useState<{ value: number; message: string } | null>(null)
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<ResultType | null>(null);
+  const [progress, setProgress] = useState<{
+    value: number;
+    message: string;
+  } | null>(null);
 
-  const handleSubmit = async (preparationQuery: string, selectQuery: string) => {
-    setSubmitted(true)
-    setLoading(true)
-    setResult(null)
-    setProgress({ value: 0, message: "Starting evaluation..." })
+  const handleSubmit = async (
+    preparationQuery: string,
+    selectQuery: string,
+  ) => {
+    setSubmitted(true);
+    setLoading(true);
+    setResult(null);
+    setProgress({ value: 0, message: "Starting evaluation..." });
 
     try {
       const response = await fetch(`/api/evaluate/${item.id}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'text/event-stream',
+          "Content-Type": "application/json",
+          Accept: "text/event-stream",
         },
         body: JSON.stringify({
           preparationQuery,
@@ -54,37 +60,38 @@ export function PracticeImplementation({ item }: PracticeImplementationProps) {
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-        
+
         // Process complete events in the buffer
-        const lines = buffer.split('\n\n');
-        buffer = lines.pop() || ''; // Keep the last incomplete chunk in the buffer
-        
+        const lines = buffer.split("\n\n");
+        buffer = lines.pop() || ""; // Keep the last incomplete chunk in the buffer
+
         for (const line of lines) {
-          if (line.startsWith('data: ')) {
+          if (line.startsWith("data: ")) {
             try {
               const eventData = JSON.parse(line.substring(6));
-              
-              if (eventData.type === 'error') {
+
+              if (eventData.type === "error") {
                 // Handle error event
                 setProgress(null);
                 setResult({ error: eventData.message });
                 setLoading(false);
-              } 
-              else if (eventData.type === 'completed' && eventData.progress === 100) {
+              } else if (
+                eventData.type === "completed" &&
+                eventData.progress === 100
+              ) {
                 // Final result received
                 setProgress(null);
                 setResult(eventData.result);
                 setLoading(false);
-              }
-              else if (eventData.type === 'progress') {
+              } else if (eventData.type === "progress") {
                 // Handle progress updates
-                setProgress({ 
-                  value: eventData.progress || 0, 
-                  message: eventData.message || 'Processing...' 
+                setProgress({
+                  value: eventData.progress || 0,
+                  message: eventData.message || "Processing...",
                 });
               }
             } catch (e) {
-              console.error('Error parsing event data:', e, line);
+              console.error("Error parsing event data:", e, line);
             }
           }
         }
@@ -101,10 +108,7 @@ export function PracticeImplementation({ item }: PracticeImplementationProps) {
   return (
     <div className="flex flex-col gap-4">
       {/* Query Input */}
-      <PracticeInputComponent
-        onSubmit={handleSubmit}
-        loading={loading}
-      />
+      <PracticeInputComponent onSubmit={handleSubmit} loading={loading} />
 
       {/* Results Display */}
       <PracticeResultDisplay
@@ -114,5 +118,5 @@ export function PracticeImplementation({ item }: PracticeImplementationProps) {
         progress={progress}
       />
     </div>
-  )
-} 
+  );
+}

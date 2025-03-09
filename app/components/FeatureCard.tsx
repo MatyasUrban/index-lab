@@ -1,35 +1,40 @@
-"use client"
+"use client";
 
-import React from 'react'
-import Link from 'next/link'
-import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card"
-import { BookOpen, BarChart2, LucideIcon } from 'lucide-react'
+import React from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
+import { BookOpen, BarChart2, LucideIcon } from "lucide-react";
 
 // Map of icon names to components
 const ICONS: Record<string, LucideIcon> = {
   BookOpen,
   BarChart2,
   // Add more icons as needed
-}
+};
 
 interface FeatureCardProps {
-  iconName: string
-  title: string
-  description: string
-  buttonText: string
-  href: string
+  iconName: string;
+  title: string;
+  description: string;
+  buttonText: string;
+  href: string;
 }
 
-export function FeatureCard({ 
-  iconName, 
-  title, 
-  description, 
-  buttonText, 
-  href 
+export function FeatureCard({
+  iconName,
+  title,
+  description,
+  buttonText,
+  href,
 }: FeatureCardProps) {
   // Get the icon component from the map
-  const Icon = ICONS[iconName] || BookOpen // Default to BookOpen if icon not found
+  const Icon = ICONS[iconName] || BookOpen; // Default to BookOpen if icon not found
 
   return (
     <Card className="border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-md">
@@ -40,9 +45,7 @@ export function FeatureCard({
         <h3 className="text-2xl font-semibold">{title}</h3>
       </CardHeader>
       <CardContent className="text-center pb-2">
-        <p className="text-muted-foreground">
-          {description}
-        </p>
+        <p className="text-muted-foreground">{description}</p>
       </CardContent>
       <CardFooter className="flex justify-center pt-2">
         <Button asChild>
@@ -50,5 +53,5 @@ export function FeatureCard({
         </Button>
       </CardFooter>
     </Card>
-  )
-} 
+  );
+}

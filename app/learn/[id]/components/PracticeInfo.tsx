@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
-import { type PracticeItem } from "@/data/learning-path"
-import { PracticeDescription } from "./PracticeDescription"
-import { PracticeSchema } from "./PracticeSchema"
-import { PracticeHints } from "./PracticeHints"
+import { type PracticeItem } from "@/data/learning-path";
+import { PracticeDescription } from "./PracticeDescription";
+import { PracticeSchema } from "./PracticeSchema";
+import { PracticeHints } from "./PracticeHints";
 
 interface PracticeInfoProps {
-  item: PracticeItem
+  item: PracticeItem;
 }
 
 export function PracticeInfo({ item }: PracticeInfoProps) {
@@ -14,12 +14,12 @@ export function PracticeInfo({ item }: PracticeInfoProps) {
     <div className="flex flex-col gap-4">
       {/* Task Description */}
       <PracticeDescription itemId={item.id} />
-      
+
       {/* Database Schema Button */}
       <PracticeSchema />
-      
+
       {/* Hints */}
       <PracticeHints hints={item.hints} />
     </div>
-  )
-} 
+  );
+}

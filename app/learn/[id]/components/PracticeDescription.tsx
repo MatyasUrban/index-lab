@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Markdown } from "@/components/Markdown"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Markdown } from "@/components/Markdown";
 
 interface PracticeDescriptionProps {
-  itemId: number
+  itemId: number;
 }
 
 export function PracticeDescription({ itemId }: PracticeDescriptionProps) {
@@ -17,5 +17,5 @@ export function PracticeDescription({ itemId }: PracticeDescriptionProps) {
         <Markdown contentId={itemId} />
       </CardContent>
     </Card>
-  )
-} 
+  );
+}

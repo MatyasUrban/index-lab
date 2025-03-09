@@ -1,20 +1,20 @@
-"use client"
+"use client";
 
-import React from 'react'
-import { Badge } from "@/components/ui/badge"
-import { CheckCircle2, XCircle } from "lucide-react"
+import React from "react";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle2, XCircle } from "lucide-react";
 
 interface PracticeResultSummaryProps {
-  isCorrect: boolean | undefined
-  isPerformant: boolean | undefined
+  isCorrect: boolean | undefined;
+  isPerformant: boolean | undefined;
 }
 
-export function PracticeResultSummary({ 
-  isCorrect = false, 
-  isPerformant = false 
+export function PracticeResultSummary({
+  isCorrect = false,
+  isPerformant = false,
 }: PracticeResultSummaryProps) {
-  const isPassed = !!isCorrect && !!isPerformant
-  
+  const isPassed = !!isCorrect && !!isPerformant;
+
   return (
     <div className="space-y-2">
       <div className="flex justify-center">
@@ -39,9 +39,11 @@ export function PracticeResultSummary({
           ) : (
             <XCircle className="text-red-600" size={20} />
           )}
-          <span>Query performance is {isPerformant ? "sufficient" : "insufficient"}</span>
+          <span>
+            Query performance is {isPerformant ? "sufficient" : "insufficient"}
+          </span>
         </div>
       )}
     </div>
-  )
-} 
+  );
+}
