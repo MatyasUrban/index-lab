@@ -242,6 +242,7 @@ export default function AnalyzePage() {
               title="Actual Node Startup & Total Time (in ms)"
               description="This insight helps you understand the actual time distribution across different nodes in your query execution plan. By comparing startup and total times, you can identify real bottlenecks in your query execution."
               data={analyzedPlan.actualTimeData}
+              total={true}
             />
           </div>
         )}

@@ -20,9 +20,18 @@ type CostInsightProps = {
   title: string;
   description: string;
   data: CostData[];
+  total?: boolean;
 };
 
-export function CostInsight({ title, description, data }: CostInsightProps) {
+export function CostInsight({
+  title,
+  description,
+  data,
+  total = false,
+}: CostInsightProps) {
+  const learnings = total
+    ? ["actualStartupTime", "actualTotalTime"]
+    : ["startupCost", "totalCost"];
   const chartContent = data && (
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={data}>
@@ -40,7 +49,7 @@ export function CostInsight({ title, description, data }: CostInsightProps) {
     <Insight
       title={title}
       description={description}
-      learnings={["startupCost", "totalCost"]}
+      learnings={learnings}
       content={chartContent}
     />
   );

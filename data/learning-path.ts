@@ -35,7 +35,7 @@ export const learningPath: LearningItem[] = [
           "What are the two main criteria used to evaluate your solutions in the practice components?",
         correct: "Correctness and Performance",
         incorrect: [
-          "Correctness and Redability",
+          "Correctness and Readability",
           "Performance and Code Style",
           "Readability and Code Style",
         ],
@@ -63,43 +63,68 @@ export const learningPath: LearningItem[] = [
     ],
   },
   {
-    type: "practice",
+    type: "learn",
     id: 2,
-    title: "Creating Your First Index",
-    description: "Practice creating a basic index on a PostgreSQL table",
-    hints: [
-      "B-tree indexes are the default index type in PostgreSQL and work well for equality and range queries.",
-      "The syntax for creating an index is: CREATE INDEX index_name ON table_name (column_name);",
-      "You can verify the performance improvement by running EXPLAIN ANALYZE on your query before and after creating the index.",
+    title: "Understanding Indexes: The Navigators of Your Data",
+    description:
+      "Understand why and under which circumstances indexes help you get your data faster",
+    questions: [
+      {
+        question:
+          "What is a key characteristic of indexes in terms of data storage?",
+        correct:
+          "They store redundant data that is already present in or derivable from tables.",
+        incorrect: [
+          "They store completely new data that isn't found in tables.",
+          "They are a compressed representation of the entire table.",
+          "They replace the original table data to save space.",
+        ],
+      },
+      {
+        question: "How does PostgreSQL store table data?",
+        correct:
+          "In 8 kilobyte blocks called heap blocks, with tuples representing rows.",
+        incorrect: [
+          "In alphabetically sorted files.",
+          "In a single, large, continuous file.",
+          "In a hierarchical tree structure.",
+        ],
+      },
+      {
+        question:
+          'What does "high selectivity" mean in the context of database queries?',
+        correct:
+          "The query needs to access only a small percentage of the table's rows.",
+        incorrect: [
+          "The query needs to access a large percentage of the table's rows.",
+          "The query is very complex and involves many joins.",
+          "The query is poorly written and inefficient.",
+        ],
+      },
+      {
+        question: "What does selectivity mean?",
+        correct:
+          "Proportion of rows that is needed to compute the result versus all the available rows",
+        incorrect: [
+          "Number of relevant rows",
+          "Number of rows in a table",
+          "None of the above",
+        ],
+      },
     ],
   },
   {
-    type: "learn",
+    type: "practice",
     id: 3,
-    title: "Index Types in PostgreSQL",
+    title: "Extracting Employee IDs from Development",
     description:
-      "Explore the different types of indexes available in PostgreSQL",
-    questions: [
-      {
-        question: "What is the capital of France?",
-        correct: "Paris",
-        incorrect: ["London", "Berlin", "Madrid"],
-      },
-      {
-        question: "Which planet is known as the Red Planet?",
-        correct: "Mars",
-        incorrect: ["Venus", "Jupiter", "Mercury"],
-      },
-      {
-        question: "What is the largest mammal?",
-        correct: "Blue Whale",
-        incorrect: ["Elephant", "Giraffe", "Hippopotamus"],
-      },
-      {
-        question: "Who painted the Mona Lisa?",
-        correct: "Leonardo da Vinci",
-        incorrect: ["Pablo Picasso", "Vincent van Gogh", "Michelangelo"],
-      },
+      "Challenge yourself to write a highly selective query that meets the requirements",
+    hints: [
+      "The information you need is spread across several tables – `employee`, `department`, and `department_employee` – and you'll need to think carefully about how these tables relate to one another to retrieve the necessary data.",
+      "To combine information from multiple tables, you'll need to use `JOIN` operations, remembering that joins are performed based on common columns between tables (for instance, you might consider joining `employee` and `department_employee` using a condition like `employee.id = department_employee.employee_id`, and you should explore similar relationships between the other tables).",
+      "Carefully consider which tables are absolutely essential to fulfill the requirements; ask yourself if you really need all three tables, or if it's possible to achieve the desired result with fewer.",
+      "The acceptance criteria are very specific about the columns required in the output, so review them carefully and avoid selecting more columns than necessary.",
+      "The task challenges you to return at least five rows, and remember that 'at least five rows' includes the possibility of exactly five rows; given what you've learned about achieving high selectivity, you might consider aiming for precisely five rows, and PostgreSQL's `LIMIT` clause is a tool designed specifically for controlling the number of rows returned.",
     ],
   },
   {

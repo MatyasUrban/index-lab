@@ -9,19 +9,10 @@ const referenceSolutions: Record<
   string,
   { preparationQuery: string; selectQuery: string }
 > = {
-  "1": {
-    preparationQuery:
-      "CREATE INDEX IF NOT EXISTS idx_actor_first_name ON actor (first_name);",
-    selectQuery: "SELECT count(1) FROM actor WHERE first_name LIKE 'MARILYN';",
-  },
-  "2": {
-    preparationQuery: "",
-    selectQuery: "SELECT * FROM department;",
-  },
   "3": {
-    preparationQuery:
-      "CREATE INDEX IF NOT EXISTS idx_actor_first_name ON actor (first_name);",
-    selectQuery: "SELECT count(1) FROM actor WHERE first_name LIKE 'MARILYN';",
+    preparationQuery: "",
+    selectQuery:
+      "SELECT de.employee_id, d.dept_name FROM department_employee de join department d on de.department_id = d.id where d.dept_name = 'Development' limit 5;",
   },
 };
 
@@ -77,8 +68,6 @@ export async function POST(
     },
   });
 }
-
-
 
 async function evaluateWithUpdates(
   request: NextRequest,

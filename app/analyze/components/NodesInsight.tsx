@@ -165,7 +165,7 @@ export function NodesInsight({ nodes, uniqueNodeTypes }: NodesInsightProps) {
   return (
     <Insight
       title="Query Plan Nodes"
-      description="These nodes represent the steps taken to execute your query. Understanding the node types and their relationships can help you optimize your query structure and indexing strategy."
+      description="This insight showcases all the nodes that contributed to producing your query result, displayed in structured boxes. Node 0 is the final node that returns the output. Each node includes (1) The node ID, (2) number of loops (how many times the node was executed), and (3) an info icon that reveals full details when clicked. (4) In the bottom, child nodes are listed, dependecies that the current node had to wait for before being able to pruduce any rows. (5) Hovering over a node highlights its parent, showing which node consumes its results."
       learnings={uniqueNodeTypes}
       content={nodesContent}
     />

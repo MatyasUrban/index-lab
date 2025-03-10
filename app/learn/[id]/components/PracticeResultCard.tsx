@@ -34,14 +34,10 @@ export function PracticeResultCard({
               isPerformant={result.performant}
             />
 
-            {result.correct &&
-              result.usersTime !== undefined &&
-              result.referenceTime !== undefined && (
-                <PracticeResultExecutionTimes
-                  userTime={result.usersTime}
-                  referenceTime={result.referenceTime}
-                />
-              )}
+            <PracticeResultExecutionTimes
+                userTime={result.usersTime}
+                referenceTime={result.referenceTime}
+            />
             <PracticePlanButtons usersPlan={result?.usersPlan} />
           </div>
         </TabsContent>

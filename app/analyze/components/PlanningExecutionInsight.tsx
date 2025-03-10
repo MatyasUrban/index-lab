@@ -26,7 +26,7 @@ export function PlanningExecutionInsight({
   return (
     <Insight
       title="Planning and Execution Time"
-      description="Understanding the time spent on planning versus execution can help you optimize your queries and database structure."
+      description="This insight showcases the time spent planning and execution duration of your query."
       learnings={["planningTime", "executionTime"]}
       content={planningExecutionTimeContent}
     />

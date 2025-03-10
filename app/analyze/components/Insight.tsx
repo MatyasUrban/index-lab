@@ -30,12 +30,22 @@ export const learningConcepts: LearningConcepts = {
   startupCost: {
     title: "Startup Cost",
     description:
-      "The estimated cost to get to the first row of output. This includes the cost of initialization and preparation before actual data retrieval begins.",
+      "The estimated cost to begin executing a query operation and produce the first row. It includes any preparatory work required by the operation, such as sorting or initializing data structures.",
   },
   totalCost: {
     title: "Total Cost",
     description:
-      "The estimated total cost to retrieve all rows. This includes the startup cost plus the cost of processing all rows.",
+      "The estimated cost to complete the query operation and retrieve all rows. It combines the startup cost with the cost of processing all rows.",
+  },
+  actualStartupTime: {
+    title: "Actual Startup Time",
+    description:
+      "The real time taken to produce the first row during query execution, measured in milliseconds. It reflects actual performance rather than an estimate.",
+  },
+  actualTotalTime: {
+    title: "Actual Total Time",
+    description:
+      "The total elapsed time to complete the query operation and retrieve all rows, also measured in milliseconds. It indicates how long the operation actually took to execute.",
   },
   planningTime: {
     title: "Planning Time",
@@ -55,7 +65,22 @@ export const learningConcepts: LearningConcepts = {
   "Seq Scan": {
     title: "Sequential Scan",
     description:
-      "A scan that reads all rows from a table sequentially. This can be slow for large tables if an appropriate index is not used.",
+      "A sequential scan is a basic table access method that reads all rows from start to finish, evaluating each against specified conditions. It’s typically used when a significant portion of the table needs to be examined or when no suitable index exists. Filters can be applied to remove irrelevant rows, potentially reducing the result set. While simple, this method can be inefficient for large tables when only a small subset of data is required.",
+  },
+  "Hash Join": {
+    title: "Hash Join",
+    description:
+      "A hash join is an algorithm for joining tables based on equijoin conditions, such as joining tables based on shared key identifier. A hash join node takes two inputs: the build side (inner relation) and the probe side (outer relation). The inner relation is typically chosen as the smaller dataset to minimize memory usage. The algorithm works in two phases: build and probe. In the build phase, a hash table is constructed using the inner relation’s join keys. Each key maps to corresponding rows from the inner relation. In the probe phase, the outer relation is scanned sequentially, and its rows are hashed to locate matches in the hash table. This ensures efficient filtering by comparing only rows with matching hash codes.",
+  },
+  Hash: {
+    title: "Hash",
+    description:
+      "A Hash node prepares data for a Hash Join operation. It reads an input relation, computes hash values for the join keys, and builds an in-memory hash table, which is then used by the corresponding Hash Join node to perform the join efficiently.",
+  },
+  Limit: {
+    title: "Limit",
+    description:
+      "A Limit node restricts the number of rows returned by its child node. It passes through a specified number of rows and then stops, effectively capping the result set size.",
   },
 };
 

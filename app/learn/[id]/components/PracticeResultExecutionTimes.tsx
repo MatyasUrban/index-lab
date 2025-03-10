@@ -3,13 +3,13 @@
 import React from "react";
 
 interface PracticeResultExecutionTimesProps {
-  userTime: number;
-  referenceTime: number;
+  userTime?: number;
+  referenceTime?: number;
 }
 
 export function PracticeResultExecutionTimes({
-  userTime,
-  referenceTime,
+  userTime = 0,
+  referenceTime = 0,
 }: PracticeResultExecutionTimesProps) {
   // Calculate the maximum time for scaling the bars
   const maxTime = Math.max(userTime, referenceTime);
