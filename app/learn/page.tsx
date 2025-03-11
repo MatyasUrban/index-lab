@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { learningPath } from "@/data/learning-path";
-import { PathItem } from "@/app/components/PathItem";
+import { PathItem } from "@/app/learn/components/PathItem";
 
 export default function LearnPage() {
   return (

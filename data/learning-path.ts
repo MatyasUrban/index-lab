@@ -184,7 +184,7 @@ export const learningPath: LearningItem[] = [
     questions: [
       {
         question:
-          "Which of the following queries would *likely* benefit from a compound index on `(last_name, first_name)`?",
+          "Which of the following queries would benefit the most from a compound index on `(last_name, first_name)`?",
         correct: "SELECT * FROM users WHERE last_name = 'Smith' AND first_name = 'John';",
         incorrect: [
           "SELECT * FROM users WHERE first_name = 'Jones';",
@@ -194,7 +194,7 @@ export const learningPath: LearningItem[] = [
       },
       {
         question:
-          "If you have a compound index on `(year, month, day)`, which filter condition is *least* likely to utilize the index efficiently?",
+          "If you have a compound index on `(year, month, day)`, which filter condition is least likely to utilize the index efficiently?",
         correct: "WHERE day = 15",
         incorrect: [
           "WHERE year = 2023",
@@ -452,15 +452,6 @@ export const learningPath: LearningItem[] = [
           "They compress the data more efficiently.",
           "They only store a subset of the data.",
           "They use a more advanced data storage format."
-        ]
-      },
-      {
-        question: "What happens if two different values hash to same value?",
-        correct: "PostgreSQL stores both values and handles collisions internally.",
-        incorrect: [
-          "PostgreSQL throws an error.",
-          "PostgreSQL uses B-Tree instead.",
-          "PostgreSQL picks the first value."
         ]
       }
     ]

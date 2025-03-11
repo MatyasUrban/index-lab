@@ -25,7 +25,6 @@ export function PathItem({ item, index }: PathItemProps) {
       <CardHeader>
         <div className="flex justify-between items-center">
           <Badge
-            variant={isLearnType ? "default" : "secondary"}
             className="flex items-center gap-1"
           >
             {isLearnType ? (
