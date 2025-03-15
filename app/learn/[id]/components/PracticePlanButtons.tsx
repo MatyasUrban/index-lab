@@ -11,9 +11,10 @@ import {
 
 interface PracticeExecutionPlanProps {
   usersPlan: string | undefined;
+  usersExplain: string | undefined;
 }
 
-export function PracticePlanButtons({ usersPlan }: PracticeExecutionPlanProps) {
+export function PracticePlanButtons({ usersPlan, usersExplain }: PracticeExecutionPlanProps) {
   const [showPlan, setShowPlan] = useState(false);
 
   return (
@@ -44,9 +45,7 @@ export function PracticePlanButtons({ usersPlan }: PracticeExecutionPlanProps) {
           <div className="p-4">
             <div className="border p-4 rounded-md bg-white">
               <pre className="text-xs overflow-auto whitespace-pre-wrap">
-                {usersPlan
-                  ? JSON.stringify(usersPlan, null, 2)
-                  : "No plan available"}
+                {usersExplain}
               </pre>
             </div>
           </div>

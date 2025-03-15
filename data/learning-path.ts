@@ -116,9 +116,9 @@ export const learningPath: LearningItem[] = [
   {
     type: "practice",
     id: 3,
-    title: "Extracting Employee IDs from Development",
+    title: "Challenge 1: Query Employee Identifiers",
     description:
-      "Challenge yourself to write a highly selective query that meets the requirements",
+      "Apply what you learned about selectivity",
     hints: [
       "The information you need is spread across several tables – `employee`, `department`, and `department_employee` – and you'll need to think carefully about how these tables relate to one another to retrieve the necessary data.",
       "To combine information from multiple tables, you'll need to use `JOIN` operations, remembering that joins are performed based on common columns between tables (for instance, you might consider joining `employee` and `department_employee` using a condition like `employee.id = department_employee.employee_id`, and you should explore similar relationships between the other tables).",
@@ -176,8 +176,24 @@ export const learningPath: LearningItem[] = [
     ],
   },
   {
-    type: "learn",
+    type: "practice",
     id: 5,
+    title: "Challenge 2: Query Pioneering Department Members",
+    description:
+      "Apply what you learned about basic indexing",
+    hints: [
+      "You'll need to combine information from the department, department_employee, and employee tables. Think about how these tables are related through their foreign keys.  Start by considering how you'd get all employees for all departments, then we'll narrow it down.",
+      "The tricky part is that you need exactly one employee per department – the one who joined earliest.  How would you normally find the minimum value of something (like from_date) within a group?",
+      "Since we're looking for the earliest from_date, think about how an index on the department_employee.from_date column could make that search much faster.  Why is an index helpful when looking for minimum or maximum values, or when ordering data?",
+      "One way to get just the earliest employee is to somehow filter the results within each department.  Could you use a subquery to find the earliest from_date for each department? Think about how you might relate that subquery back to the main query.",
+      "Imagine you could run a separate, small query for each department to find its earliest employee. This smaller query would need to 'know' which department it's currently looking at. There are ways in SQL to connect an inner query to the outer query's current row. Explore correlated subqueries; this is a key.",
+      "If you could get the earliest from_date for each department in a separate query (or subquery), how would you then join that back to the employee and department tables to get the full employee details? Think about different types of joins and which one guarantees you'll get all departments, even if there's an issue with the subquery (though there shouldn't be in this case).",
+      "PostgreSQL has a feature called LATERAL joins that's designed for exactly this kind of situation – running a subquery that depends on the current row of the outer query. If you're using a LEFT JOIN, combining it with LATERAL might be the solution. Consider ON TRUE for including all the departments."
+    ],
+  },
+  {
+    type: "learn",
+    id: 6,
     title: "Compound Indexes for Multi-Column Lookup",
     description:
       "Learn how to create and effectively use compound indexes to optimize queries involving multiple columns, understanding their benefits and limitations.",
@@ -234,8 +250,23 @@ export const learningPath: LearningItem[] = [
     ],
   },
   {
+    type: "practice",
+    id: 7,
+    title: "Challenge 2: Query Amount of High Earners",
+    description:
+      "Apply what you learned about compound indexing",
+    hints: [
+      "Start by considering the salary table. This table contains the information necessary to answer the question.",
+      "Think about how the from_date and to_date columns in the salary table define the period during which a salary is active",
+      "Generally, the columns you use in your WHERE clause's filtering conditions are good candidates for inclusion in an index.",
+      "Columns used for precise equalities or the first part of range comparisons, offer more initial restrictiveness and should be positioned accordingly in the index. Consider also the logical organization of the data.",
+      "Consider the likely distribution of salaries within the company. On January 1st, 1990, many employees were likely working at the company. However, only a small fraction of them would have been earning a salary greater than 120000. How might this difference in selectivity influence the optimal order of columns in a compound index?",
+      "Feel free to run the task several times, experimenting with index column orders. Use the analysis to compare performance. The fastest execution plan will provide insights, remember that the database might use the index in unexpected ways."
+    ]
+  },
+  {
     type: "learn",
-    id: 6,
+    id: 8,
     title: "Covering Indexes and Index-Only Scans",
     description: "Learn how to create indexes that contain all the data needed for a query, eliminating the need to access the table itself.",
     questions: [
@@ -279,7 +310,7 @@ export const learningPath: LearningItem[] = [
   },
   {
     type: "learn",
-    id: 7,
+    id: 12,
     title: "Functional Indexes and Ordering",
     description: "Learn how to create indexes that match your query's specific needs, including custom sort orders and functional transformations.",
     questions: [
@@ -332,7 +363,7 @@ export const learningPath: LearningItem[] = [
   },
   {
     type: "learn",
-    id: 8,
+    id: 15,
     title: "Partial Indexes to Target Specific Data Subsets",
     description: "Learn how to create smaller, faster indexes for specific portions of your data using a WHERE clause.",
     questions: [
@@ -376,7 +407,7 @@ export const learningPath: LearningItem[] = [
   },
   {
     type: "learn",
-    id: 9,
+    id: 17,
     title: "Substring Search and Pattern Matching",
     description:
       "Learn how to efficiently search for substrings within text columns using LIKE, operator classes, trigrams, and GIN indexes.",
@@ -423,8 +454,8 @@ export const learningPath: LearningItem[] = [
   },
   {
     type: "learn",
-    id: 10,
-    title: "Lightning-Fast Equality: Unleashing Hash Indexes",
+    id: 20,
+    title: "Fast Equality with Hash Indexes",
     description: "Discover the speed and efficiency of hash indexes for equality-based queries in PostgreSQL.",
     questions: [
       {

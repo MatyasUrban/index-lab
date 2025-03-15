@@ -3,7 +3,6 @@
 import React, { useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
 
 interface PracticeInputComponentProps {
@@ -15,7 +14,7 @@ export function PracticeInputComponent({
   onSubmitAction,
   loading,
 }: PracticeInputComponentProps) {
-  const prepQueryRef = useRef<HTMLInputElement>(null);
+  const prepQueryRef = useRef<HTMLTextAreaElement>(null);
   const selectQueryRef = useRef<HTMLTextAreaElement>(null);
 
   const handleSubmit = () => {
@@ -36,12 +35,12 @@ export function PracticeInputComponent({
         <label htmlFor="pre-query" className="text-sm font-medium">
           Preparation Query
         </label>
-        <Input
+        <Textarea
           id="pre-query"
           ref={prepQueryRef}
           defaultValue=""
           placeholder="Optional: CREATE INDEX..."
-          className="font-mono"
+          className="font-mono resize-none h-24"
         />
       </div>
 
@@ -55,7 +54,7 @@ export function PracticeInputComponent({
             ref={selectQueryRef}
             defaultValue=""
             placeholder="SELECT * FROM employees WHERE..."
-            className="font-mono resize-none h-32 pr-28"
+            className="font-mono resize-none h-64 pr-28"
             required
           />
           <Button

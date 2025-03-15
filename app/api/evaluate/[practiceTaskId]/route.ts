@@ -14,6 +14,14 @@ const referenceSolutions: Record<
     selectQuery:
       "SELECT de.employee_id, d.dept_name FROM department_employee de join department d on de.department_id = d.id where d.dept_name = 'Development' limit 5;",
   },
+  "5": {
+    preparationQuery: "CREATE INDEX idx_dept_emp_from_date ON department_employee (from_date);",
+    selectQuery: "SELECT d.dept_name, de.employee_id, de.from_date, de.first_name, de.last_name FROM department d LEFT JOIN LATERAL (SELECT employee_id, from_date, first_name, last_name FROM department_employee JOIN employee e ON department_employee.employee_id = e.id WHERE department_id = d.id ORDER BY from_date LIMIT 1) de ON TRUE;",
+  },
+  "7": {
+    preparationQuery: "CREATE INDEX idx_salary_amount_fromdate_todate ON salary (amount, from_date, to_date);",
+    selectQuery: "SELECT COUNT(1) AS employee_count FROM salary WHERE from_date <= '1990-01-01' AND to_date >= '1990-01-01' AND amount > 120000;",
+  }
 };
 
 function resultToSet(queryResult: QueryResult): Set<string> {
@@ -48,6 +56,7 @@ export type EvaluationResponseType = {
   usersRows?: Record<string, any>[];
   referenceRows?: Record<string, any>[];
   usersPlan?: string;
+  usersExplain?: string;
 };
 
 export async function POST(
@@ -110,6 +119,7 @@ async function evaluateWithUpdates(
         usersRows: undefined,
         referenceRows: undefined,
         usersPlan: undefined,
+        usersExplain: undefined,
       };
 
       const client = await pool.connect();
@@ -217,6 +227,12 @@ async function evaluateWithUpdates(
         result.usersTime = getExecutionTime(userExplain);
         // Store the full plan for visualization
         result.usersPlan = userExplain.rows[0]["QUERY PLAN"];
+        
+        // Run explain with TEXT format for better readability
+        const explainTextQuery = `EXPLAIN (FORMAT TEXT) ${selectQuery}`;
+        const userExplainText = await client.query(explainTextQuery);
+        // Combine all rows of the QUERY PLAN into a single string
+        result.usersExplain = userExplainText.rows.map(row => row["QUERY PLAN"]).join('\n');
 
         // Step 6: Restoring the database
         await writer.write(
