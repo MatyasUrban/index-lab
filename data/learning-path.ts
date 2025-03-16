@@ -252,7 +252,7 @@ export const learningPath: LearningItem[] = [
   {
     type: "practice",
     id: 7,
-    title: "Challenge 2: Query Amount of High Earners",
+    title: "Challenge 3: Query Amount of High Earners",
     description:
       "Apply what you learned about compound indexing",
     hints: [
@@ -309,8 +309,25 @@ export const learningPath: LearningItem[] = [
     ],
   },
   {
+    type: "practice",
+    id: 9,
+    title: "Challenge 4: Query Recent Technique Leaders",
+    description:
+      "Apply what you learned about achieving index only scans",
+    hints: [
+      "Identify the tables that contain the necessary information (employee details and title history). You will need to join these tables.",
+      "Examine the primary keys of the employee and title tables. Are these primary keys sufficient to efficiently satisfy all the requirements of the task, including filtering, sorting, and retrieving all the necessary columns?",
+      "Consider which table you'll likely use to first filter down to the relevant 'Technique Leader' records.  Which columns are involved in that filtering? Could an index on that table be helpful? What minimal information you need from this table?",
+      "After identifying the relevant 'Technique Leaders', how will you efficiently retrieve the additional employee information (first_name, last_name, gender, birth_date) and sort the results?  Think about an index on the employee table.",
+      "Could covering indexes, using the INCLUDE clause, be used to avoid accessing the table data pages after the initial filtering?  Which columns would you need to include for each table?",
+      "Remember that you can create multiple indexes (separated by semicolons in your solution) to optimize different parts of the query. Don't be afraid to create an index on more than one table. Focus on making the query highly selective first, and then efficiently retrieving the remaining data. Consider index that could help sorting on employee table.",
+      "The order of columns in a composite index is crucial. Consider the ORDER BY clause in the task description.",
+      "After writing your query and creating any indexes, use analysis output to analyze the query execution plan. Aim for index-only scans on both the employee and title tables. This will require some iterations."
+    ]
+  },
+  {
     type: "learn",
-    id: 12,
+    id: 10,
     title: "Functional Indexes and Ordering",
     description: "Learn how to create indexes that match your query's specific needs, including custom sort orders and functional transformations.",
     questions: [
@@ -362,8 +379,36 @@ export const learningPath: LearningItem[] = [
     ],
   },
   {
+    type: "practice",
+    id: 11,
+    title: "Challenge 5: Query Short Tenures",
+    description:
+      "Apply what you learned about functional indexes",
+    hints: [
+      "Which tables contain the information needed to determine the length of an employee's assignment in a specific department? Think about how you would *calculate* that length.",
+      "Consider how an index could speed up queries that filter based on a calculated value.  What if you could pre-calculate and store that value in the index itself? This is the core idea behind a *functional index*.",
+      "In PostgreSQL, subtracting two `DATE` values results in an `INTEGER` representing the number of days between them. How does this fact relate to the task of finding assignments that lasted 7 days or less? How might this influence the design of a functional index?",
+      "To generate the statistics, consider joining the necessary tables, grouping by the department name (which must also appear in the SELECT list), using COUNT(*) to count assignments within each group, aliasing the count with AS, and then ordering the results ORDER BY that aliased count in descending order, all while leveraging a functional index for efficiency."
+    ]
+  },
+  {
+    type: "practice",
+    id: 12,
+    title: "Challenge 6: Query Mentorship Candidates",
+    description:
+      "Apply what you learned about ASC/DESC in compound indexes",
+    hints: [
+      "Think about which columns are involved in filtering and sorting. Are there multiple sorting columns?",
+      "Consider the order: 'most recently hired' and 'oldest'. Do they suggest the same sorting direction?",
+      "Would a standard index on `hire_date` alone be fully efficient? Why or why not?",
+      "The index should *exactly* match the query's filtering and sorting. How to create such an index?",
+      "Consider using a compound index.",
+      "Think about dates in terms of their underlying representation. Imagine dates as timestamps (like seconds since a specific point in time, similar to Unix timestamps).  A *later* date would have a *larger* timestamp value.  What does this imply about ascending (ASC) and descending (DESC) order for dates? Ascending order for dates means going from the past to the future."
+    ]
+  },
+  {
     type: "learn",
-    id: 15,
+    id: 13,
     title: "Partial Indexes to Target Specific Data Subsets",
     description: "Learn how to create smaller, faster indexes for specific portions of your data using a WHERE clause.",
     questions: [
@@ -406,8 +451,28 @@ export const learningPath: LearningItem[] = [
     ],
   },
   {
+    type: "practice",
+    id: 14,
+    title: "Challenge 7: Query Manager Data of Low Earners",
+    description:
+      "Apply what you learned about partial indexes",
+    hints: [
+      "Think about the distribution of salaries in a typical company. Are all salary values equally common? Which salary ranges are likely to contain fewer employees?",
+      "This task focuses on a *specific and likely small* segment of the salary data: current low salaries (under $40,000). Would indexing the *entire* `salary` table be the most efficient approach, or is there a better way to target only the relevant rows?",
+      "Consider the concept of *partial indexes*. How could you use a `WHERE` clause within the `CREATE INDEX` statement to create an index that only includes the rows relevant to this specific query?",
+      "Focus on the `salary` table. The `amount` and `to_date` columns are critical for defining 'currently earning less than $40,000'. What specific condition in the `WHERE` clause of your `CREATE INDEX` statement would achieve this?",
+      "The results need to be sorted by the date the employee started their current salary (`salary_from_date`). How can you include this column in your partial index to optimize the sorting operation?  Think about the order of columns in a composite index. Are we interested in sorting by amount?",
+      "While not strictly required, can you include any other columns in your partial index (perhaps using an `INCLUDE` clause, or just by including them normally) that might further improve performance by avoiding lookups in the main `salary` table? Think about which columns from `salary` are needed in the `SELECT` list or in `JOIN` conditions. We need `employee_id`.",
+      "You'll need to join several tables to retrieve all the required information: `employee`, `salary`, `department_employee`, `department_manager`, and `employee` again (for the manager's information).  Start by joining `employee` and `salary`.",
+      "Remember the note about `to_date = '9999-01-01'` representing current records. You'll need to include this condition in your `WHERE` clause not only for the `salary` table but also for the `department_employee` and `department_manager` tables to ensure you're getting the *current* department and manager.",
+      "To get the manager's name, you'll need to join the `employee` table *again*.  You *must* use different aliases for the `employee` table in this case (e.g., `e` for the employee and `em` for the manager) to distinguish between them.",
+      "Ensure your `WHERE` clause in the main `SELECT` query *exactly* matches the `WHERE` clause of your partial index. This is crucial for the database to use the index. Use the `LIMIT` clause to retrieve only the first 10 employees.",
+      "Consider carefully the order of columns within your partial index, think whether ordering by amount could help."
+    ]
+  },
+  {
     type: "learn",
-    id: 17,
+    id: 15,
     title: "Substring Search and Pattern Matching",
     description:
       "Learn how to efficiently search for substrings within text columns using LIKE, operator classes, trigrams, and GIN indexes.",
@@ -453,8 +518,22 @@ export const learningPath: LearningItem[] = [
     ],
   },
   {
+    type: "practice",
+    id: 16,
+    title: "Challenge 8: Query Recovered Record",
+    description:
+      "Apply what you learned about trigram indexes and operator classes",
+    hints: [
+      "You'll need to combine filtering by both a specific date *and* a partial string match.",
+      "Think about the best way to optimize searches that involve partial string matches, especially when the fragment could be anywhere in the string.",
+      "Consider using a specialized index type that's designed for this kind of text search.",
+      "Remember that searching for a substring within the last name will *significantly reduce* the number of rows that need to be examined, even before considering the hire date. Focus on optimizing that part.",
+      "If using a GIN index, remember the appropriate operator class for trigram-based searches (`gin_trgm_ops`)."
+    ]
+  },
+  {
     type: "learn",
-    id: 20,
+    id: 17,
     title: "Fast Equality with Hash Indexes",
     description: "Discover the speed and efficiency of hash indexes for equality-based queries in PostgreSQL.",
     questions: [
@@ -485,6 +564,21 @@ export const learningPath: LearningItem[] = [
           "They use a more advanced data storage format."
         ]
       }
+    ]
+  },
+  {
+    type: "practice",
+    id: 18,
+    title: "Challenge 9: Query Who's Celebrating Today",
+    description:
+      "Apply what you learned about hash and functional indexes",
+    hints: [
+      "Imagine grouping employees into 'buckets' based on their birth month and day. How could you efficiently find the 'bucket' for today's date?",
+      "You'll need to extract the month and day from both the `birth_date` and the current date. Consider using the `EXTRACT` function in PostgreSQL.",
+      "Since you're looking for an *exact* match of month and day, what type of index would be most efficient? Think about how different index types (B-tree, Hash) work.",
+      "A hash index is very fast for equality checks. How could you create a hash index that effectively groups employees into 'buckets' based on their birth month and day?",
+      "To use a hash index effectively, you need a single value to represent the month and day.  Think about a simple, locale-independent calculation to combine the extracted month and day into a unique integer.",
+      "Use `NOW()` or `CURRENT_DATE`"
     ]
   }
 ];
