@@ -99,7 +99,6 @@ export function Markdown({ content, contentId }: MarkdownProps) {
             // Handle relative paths for images in markdown files
             let imageSrc = src;
             if (contentId && src.startsWith("./")) {
-              // If it's a relative path and we have a contentId, resolve it relative to the markdown file location
               imageSrc = `/markdown/learn/${src.replace("./", "")}`;
             }
 
