@@ -127,6 +127,22 @@ async function evaluateWithUpdates(
   try {
     const { practiceTaskId } = await params;
 
+    // Check if database is responding
+    try {
+      await pool.query('SELECT 1');
+    } catch (dbConnectionError) {
+      await writer.write(
+        encoder.encode(
+          `data: ${JSON.stringify({
+            type: "error",
+            message: "Database is not responding. Please make sure your database container is running.",
+          })}\n\n`,
+        ),
+      );
+      await writer.close();
+      return;
+    }
+
     if (!referenceSolutions[practiceTaskId]) {
       await writer.write(
         encoder.encode(
