@@ -251,7 +251,7 @@ export default function AnalyzePage() {
           <div className="flex items-center justify-center h-full">
             <div className="text-center text-muted-foreground">
               <p>
-                Click "Digest Plan" to generate insights from your execution
+                Click &quot;Digest Plan&quot; to generate insights from your execution
                 plan
               </p>
             </div>

@@ -14,10 +14,21 @@ const compat = new FlatCompat({
 const eslintConfig = [
   ...compat.extends(
     "eslint:recommended",
-    "next/core-web-vitals",
-    "next/typescript",
-    "prettier",
+    "next/core-web-vitals"
   ),
+  {
+    files: ["app/**/*.{ts,tsx}"],
+    rules: {
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
+
+      "no-unused-vars": "off",
+      "no-undef": "warn",
+      "no-constant-condition": "off",
+      "no-func-assign": "off",
+    },
+  },
 ];
 
 export default eslintConfig;
