@@ -1,3 +1,55 @@
+## Running the Project
+
+**Prerequisites:**
+
+- Download and install Docker Desktop:
+  - [macOS](https://docs.docker.com/desktop/setup/install/mac-install/)
+  - [Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
+  - [Linux](https://docs.docker.com/desktop/setup/install/linux/)
+- Open Docker Desktop after installation.
+
+**1. Using Prebuilt Images (from Docker Hub):**
+
+- Pull the necessary Docker images:
+
+  ```bash
+  docker pull matyasurban/pg-index-lab:app
+  docker pull matyasurban/pg-index-lab:db
+  ```
+
+- Download the `docker-compose.yaml` file from this repository's directory.
+- Navigate to the directory where you saved `docker-compose.yaml` in your terminal.
+- Run the following command:
+
+  ```bash
+  docker compose up
+  ```
+
+- Open your web browser and visit: `localhost:3000`
+
+**2. Using the Latest Repository Version:**
+
+- Download this repository to your machine:
+  - **If you have Git installed:**
+    ```bash
+    git clone https://github.com/MatyasUrban/index-lab.git
+    ```
+    or
+    ```bash
+    git clone git@github.com:MatyasUrban/index-lab.git
+    ```
+  - **If you don't have Git installed:**
+    - Go to: `Code > Local > Download ZIP` on the GitHub repository page.
+    - Unzip the downloaded archive.
+- Navigate to the downloaded repository's directory in your terminal.
+- Run the following command:
+
+  ```bash
+  docker compose up
+  ```
+
+- Open your web browser and visit: `localhost:3000`
+
 ## Dataset
 
 The `1_init_schema.sql` and `2_init_data.sql` scripts initialize the PostgreSQL container defined in `docker-compose.yaml` based on the official `postgres:17` image.

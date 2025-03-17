@@ -1,6 +1,9 @@
 services:
   db:
-    image: postgres:17
+    image: matyasurban/pg-index-lab:db
+    build:
+      context: .
+      dockerfile: Dockerfile.db
     environment:
       POSTGRES_DB: index-lab
       POSTGRES_USER: postgres
@@ -11,16 +14,17 @@ services:
       - ./1_init_schema.sql:/docker-entrypoint-initdb.d/1_init_schema.sql
       - ./2_init_data.sql.gz:/docker-entrypoint-initdb.d/2_init_data.sql.gz
       - postgres_data:/var/lib/postgresql/data
-#  app:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    ports:
-#      - "3000:3000"
-#    depends_on:
-#      - db
-#    environment:
-#      DATABASE_URL: postgresql://postgres:postgres@db:5432/index-lab
+  app:
+    image: matyasurban/pg-index-lab:app
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/index-lab
 
 volumes:
   postgres_data:

@@ -1,0 +1,4 @@
+FROM postgres:17
+
+COPY 1_init_schema.sql /docker-entrypoint-initdb.d/
+COPY 2_init_data.sql.gz /docker-entrypoint-initdb.d/
