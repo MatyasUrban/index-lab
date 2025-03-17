@@ -29,6 +29,9 @@ const eslintConfig = [
       "no-func-assign": "off",
     },
   },
+  {
+    ignores: ["components/**/*"],
+  }
 ];
 
 export default eslintConfig;
