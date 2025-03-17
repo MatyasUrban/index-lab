@@ -101,7 +101,7 @@ export type EvaluationResponseType = {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { practiceTaskId: string } },
+  { params }: { params: Promise<{ practiceTaskId: string }> },
 ) {
   const responseStream = new TransformStream();
   const writer = responseStream.writable.getWriter();
@@ -120,14 +120,13 @@ export async function POST(
 
 async function evaluateWithUpdates(
   request: NextRequest,
-  { params }: { params: { practiceTaskId: string } },
+  { params }: { params: Promise<{ practiceTaskId: string }> },
   writer: WritableStreamDefaultWriter,
   encoder: TextEncoder,
 ) {
   try {
     const { practiceTaskId } = await params;
 
-    // Check if database is responding
     try {
       await pool.query('SELECT 1');
     } catch (dbConnectionError) {
@@ -335,6 +334,8 @@ async function evaluateWithUpdates(
         ) {
           result.performant = result.usersTime < result.referenceTime * 1.5;
         }
+
+        console.log("Evaluation result:", JSON.stringify(result, null, 2));
 
         // Send final result
         await writer.write(

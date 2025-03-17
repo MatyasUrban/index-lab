@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { AlertCircle } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
@@ -146,7 +146,8 @@ function analyzePlan(plan: any): AnalyzedPlan {
   };
 }
 
-export default function AnalyzePage() {
+// Client component that uses useSearchParams
+function AnalyzeContent() {
   const searchParams = useSearchParams();
   const [planInput, setPlanInput] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -259,5 +260,13 @@ export default function AnalyzePage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function AnalyzePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <AnalyzeContent />
+    </Suspense>
   );
 }
