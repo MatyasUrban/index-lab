@@ -12,10 +12,7 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends(
-    "eslint:recommended",
-    "next/core-web-vitals"
-  ),
+  ...compat.extends("eslint:recommended", "next/core-web-vitals"),
   {
     files: ["app/**/*.{ts,tsx}"],
     rules: {
@@ -31,7 +28,7 @@ const eslintConfig = [
   },
   {
     ignores: ["components/**/*"],
-  }
+  },
 ];
 
 export default eslintConfig;

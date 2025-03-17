@@ -252,8 +252,8 @@ function AnalyzeContent() {
           <div className="flex items-center justify-center h-full">
             <div className="text-center text-muted-foreground">
               <p>
-                Click &quot;Digest Plan&quot; to generate insights from your execution
-                plan
+                Click &quot;Digest Plan&quot; to generate insights from your
+                execution plan
               </p>
             </div>
           </div>

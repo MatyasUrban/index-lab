@@ -82,6 +82,36 @@ export const learningConcepts: LearningConcepts = {
     description:
       "A Limit node restricts the number of rows returned by its child node. It passes through a specified number of rows and then stops, effectively capping the result set size.",
   },
+  "Nested Loop": {
+    title: "Nested Loop",
+    description:
+      "A join algorithm that iterates through rows of the outer table and, for each row, scans the inner table for matches. It’s efficient for small datasets or when the inner table has an index on the join column, but can be slow for large datasets without proper indexing.",
+  },
+  Sort: {
+    title: "Sort",
+    description:
+      "A node that orders the input rows based on specified columns or expressions. It’s used to implement ORDER BY clauses, to prepare data for merge joins, or to support operations like DISTINCT. Sorting can be memory-intensive for large datasets and may require disk-based operations.",
+  },
+  "Incremental Sort": {
+    title: "Incremental Sort",
+    description:
+      "An optimization of the Sort node that exploits existing partial ordering in the input data. It sorts smaller groups of rows incrementally, reducing memory usage and improving performance when the input is already partially sorted by leading columns of the sort key.",
+  },
+  "Bitmap Heap Scan": {
+    title: "Bitmap Heap Scan",
+    description:
+      "A two-phase table access method that first creates a bitmap of matching row locations using one or more indexes, then fetches the actual rows from the table. It’s often more efficient than a simple index scan when a moderate number of rows need to be retrieved from a large table.",
+  },
+  Aggregate: {
+    title: "Aggregate",
+    description:
+      "A node that computes aggregate functions like SUM, AVG, or COUNT over groups of rows. It maintains internal state as it processes rows, updating this state with a transition function for each input row. After processing all rows, it applies a final function to produce the aggregate result for each group.",
+  },
+  Materialize: {
+    title: "Materialize",
+    description:
+      "A node that stores the results of its child node in memory or on disk, allowing for faster repeated access to the data. It’s useful for operations that need to scan their input multiple times, such as nested loop joins or certain types of subqueries.",
+  },
 };
 
 export type InsightProps = {

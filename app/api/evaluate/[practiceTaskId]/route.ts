@@ -128,13 +128,14 @@ async function evaluateWithUpdates(
     const { practiceTaskId } = await params;
 
     try {
-      await pool.query('SELECT 1');
+      await pool.query("SELECT 1");
     } catch (dbConnectionError) {
       await writer.write(
         encoder.encode(
           `data: ${JSON.stringify({
             type: "error",
-            message: "Database is not responding. Please make sure your database container is running.",
+            message:
+              "Database is not responding. Please make sure your database container is running.",
           })}\n\n`,
         ),
       );
