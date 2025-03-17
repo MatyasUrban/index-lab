@@ -35,10 +35,13 @@ export function PracticeResultCard({
             />
 
             <PracticeResultExecutionTimes
-                userTime={result.usersTime}
-                referenceTime={result.referenceTime}
+              userTime={result.usersTime}
+              referenceTime={result.referenceTime}
             />
-            <PracticePlanButtons usersPlan={result?.usersPlan} usersExplain={result?.usersExplain} />
+            <PracticePlanButtons
+              usersPlan={result?.usersPlan}
+              usersExplain={result?.usersExplain}
+            />
           </div>
         </TabsContent>
 

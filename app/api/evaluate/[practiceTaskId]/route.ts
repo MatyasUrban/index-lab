@@ -15,37 +15,53 @@ const referenceSolutions: Record<
       "SELECT de.employee_id, d.dept_name FROM department_employee de join department d on de.department_id = d.id where d.dept_name = 'Development' limit 5;",
   },
   "5": {
-    preparationQuery: "CREATE INDEX idx_dept_emp_from_date ON department_employee (from_date);",
-    selectQuery: "SELECT d.dept_name, de.employee_id, de.from_date, de.first_name, de.last_name FROM department d LEFT JOIN LATERAL (SELECT employee_id, from_date, first_name, last_name FROM department_employee JOIN employee e ON department_employee.employee_id = e.id WHERE department_id = d.id ORDER BY from_date LIMIT 1) de ON TRUE;",
+    preparationQuery:
+      "CREATE INDEX idx_dept_emp_from_date ON department_employee (from_date);",
+    selectQuery:
+      "SELECT d.dept_name, de.employee_id, de.from_date, de.first_name, de.last_name FROM department d LEFT JOIN LATERAL (SELECT employee_id, from_date, first_name, last_name FROM department_employee JOIN employee e ON department_employee.employee_id = e.id WHERE department_id = d.id ORDER BY from_date LIMIT 1) de ON TRUE;",
   },
   "7": {
-    preparationQuery: "CREATE INDEX idx_salary_amount_fromdate_todate ON salary (amount, from_date, to_date);",
-    selectQuery: "SELECT COUNT(1) AS employee_count FROM salary WHERE from_date <= '1990-01-01' AND to_date >= '1990-01-01' AND amount > 120000;",
+    preparationQuery:
+      "CREATE INDEX idx_salary_amount_fromdate_todate ON salary (amount, from_date, to_date);",
+    selectQuery:
+      "SELECT COUNT(1) AS employee_count FROM salary WHERE from_date <= '1990-01-01' AND to_date >= '1990-01-01' AND amount > 120000;",
   },
   "9": {
-    preparationQuery: "CREATE INDEX idx_employee ON employee (id, last_name, first_name) INCLUDE (gender, birth_date);CREATE INDEX idx_title ON title (title, from_date) INCLUDE (employee_id);",
-    selectQuery: "SELECT t.title, t.from_date, e.first_name, e.last_name, e.gender, e.birth_date FROM employee e INNER JOIN title t ON t.employee_id = e.id WHERE t.title = 'Technique Leader' ORDER BY t.from_date DESC, e.last_name, e.first_name limit 10;"
+    preparationQuery:
+      "CREATE INDEX idx_employee ON employee (id, last_name, first_name) INCLUDE (gender, birth_date);CREATE INDEX idx_title ON title (title, from_date) INCLUDE (employee_id);",
+    selectQuery:
+      "SELECT t.title, t.from_date, e.first_name, e.last_name, e.gender, e.birth_date FROM employee e INNER JOIN title t ON t.employee_id = e.id WHERE t.title = 'Technique Leader' ORDER BY t.from_date DESC, e.last_name, e.first_name limit 10;",
   },
   "11": {
-    preparationQuery: "CREATE INDEX idx_dept_emp_very_short_tenure ON department_employee ((to_date - from_date));",
-    selectQuery: "SELECT d.dept_name, COUNT(*) AS short_term_assignments FROM department_employee de JOIN department d ON de.department_id = d.id WHERE (de.to_date - de.from_date) <= 7 GROUP BY d.dept_name ORDER BY short_term_assignments DESC;"
+    preparationQuery:
+      "CREATE INDEX idx_dept_emp_very_short_tenure ON department_employee ((to_date - from_date));",
+    selectQuery:
+      "SELECT d.dept_name, COUNT(*) AS short_term_assignments FROM department_employee de JOIN department d ON de.department_id = d.id WHERE (de.to_date - de.from_date) <= 7 GROUP BY d.dept_name ORDER BY short_term_assignments DESC;",
   },
   "12": {
-    preparationQuery: "CREATE INDEX idx_employee_hire_birth_desc_asc ON employee (hire_date DESC, birth_date ASC);",
-    selectQuery: "SELECT id, hire_date, birth_date, first_name, last_name FROM employee WHERE gender = 'F' ORDER BY hire_date DESC, birth_date ASC LIMIT 3;"
+    preparationQuery:
+      "CREATE INDEX idx_employee_hire_birth_desc_asc ON employee (hire_date DESC, birth_date ASC);",
+    selectQuery:
+      "SELECT id, hire_date, birth_date, first_name, last_name FROM employee WHERE gender = 'F' ORDER BY hire_date DESC, birth_date ASC LIMIT 3;",
   },
   "14": {
-    preparationQuery: "CREATE INDEX idx_salary_under40k_current ON salary (from_date, employee_id) WHERE amount < 40000 AND to_date = '9999-01-01';",
-    selectQuery: "SELECT e.id AS employee_id, e.first_name, e.last_name, s.amount, s.from_date AS salary_from_date, dm.employee_id AS manager_id, em.first_name as manager_first_name, em.last_name as manager_last_name FROM employee e JOIN salary s ON e.id = s.employee_id JOIN department_employee de ON e.id = de.employee_id JOIN department_manager dm ON de.department_id = dm.department_id JOIN employee em ON dm.employee_id = em.id WHERE s.amount < 40000 AND s.to_date = '9999-01-01' AND de.to_date = '9999-01-01' AND dm.to_date = '9999-01-01' ORDER BY s.from_date, e.id LIMIT 10;"
+    preparationQuery:
+      "CREATE INDEX idx_salary_under40k_current ON salary (from_date, employee_id) WHERE amount < 40000 AND to_date = '9999-01-01';",
+    selectQuery:
+      "SELECT e.id AS employee_id, e.first_name, e.last_name, s.amount, s.from_date AS salary_from_date, dm.employee_id AS manager_id, em.first_name as manager_first_name, em.last_name as manager_last_name FROM employee e JOIN salary s ON e.id = s.employee_id JOIN department_employee de ON e.id = de.employee_id JOIN department_manager dm ON de.department_id = dm.department_id JOIN employee em ON dm.employee_id = em.id WHERE s.amount < 40000 AND s.to_date = '9999-01-01' AND de.to_date = '9999-01-01' AND dm.to_date = '9999-01-01' ORDER BY s.from_date, e.id LIMIT 10;",
   },
   "16": {
-    preparationQuery: "CREATE INDEX IF NOT EXISTS idx_employee_last_name_gin ON employee USING gin (last_name gin_trgm_ops);",
-    selectQuery: "SELECT first_name, last_name, birth_date FROM employee WHERE last_name LIKE '%ith%' AND hire_date = '1989-06-14' ORDER BY last_name, first_name;"
+    preparationQuery:
+      "CREATE INDEX IF NOT EXISTS idx_employee_last_name_gin ON employee USING gin (last_name gin_trgm_ops);",
+    selectQuery:
+      "SELECT first_name, last_name, birth_date FROM employee WHERE last_name LIKE '%ith%' AND hire_date = '1989-06-14' ORDER BY last_name, first_name;",
   },
   "18": {
-    preparationQuery: "CREATE INDEX idx_employee_birthday_hash ON employee USING HASH ((EXTRACT(MONTH FROM birth_date) * 100 + EXTRACT(DAY FROM birth_date)));",
-    selectQuery: "SELECT count(1) as number_of_employees FROM employee WHERE EXTRACT(MONTH FROM birth_date) * 100 + EXTRACT(DAY FROM birth_date) = EXTRACT(MONTH FROM now()) * 100 + EXTRACT(DAY FROM now());"
-  }
+    preparationQuery:
+      "CREATE INDEX idx_employee_birthday_hash ON employee USING HASH ((EXTRACT(MONTH FROM birth_date) * 100 + EXTRACT(DAY FROM birth_date)));",
+    selectQuery:
+      "SELECT count(1) as number_of_employees FROM employee WHERE EXTRACT(MONTH FROM birth_date) * 100 + EXTRACT(DAY FROM birth_date) = EXTRACT(MONTH FROM now()) * 100 + EXTRACT(DAY FROM now());",
+  },
 };
 
 function resultToSet(queryResult: QueryResult): Set<string> {
@@ -251,12 +267,14 @@ async function evaluateWithUpdates(
         result.usersTime = getExecutionTime(userExplain);
         // Store the full plan for visualization
         result.usersPlan = userExplain.rows[0]["QUERY PLAN"];
-        
+
         // Run explain with TEXT format for better readability
         const explainTextQuery = `EXPLAIN (FORMAT TEXT) ${selectQuery}`;
         const userExplainText = await client.query(explainTextQuery);
         // Combine all rows of the QUERY PLAN into a single string
-        result.usersExplain = userExplainText.rows.map(row => row["QUERY PLAN"]).join('\n');
+        result.usersExplain = userExplainText.rows
+          .map((row) => row["QUERY PLAN"])
+          .join("\n");
 
         // Step 6: Restoring the database
         await writer.write(

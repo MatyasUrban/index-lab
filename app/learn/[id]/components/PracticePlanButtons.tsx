@@ -14,7 +14,10 @@ interface PracticeExecutionPlanProps {
   usersExplain: string | undefined;
 }
 
-export function PracticePlanButtons({ usersPlan, usersExplain }: PracticeExecutionPlanProps) {
+export function PracticePlanButtons({
+  usersPlan,
+  usersExplain,
+}: PracticeExecutionPlanProps) {
   const [showPlan, setShowPlan] = useState(false);
 
   return (

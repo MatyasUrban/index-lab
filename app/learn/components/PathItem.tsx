@@ -24,9 +24,7 @@ export function PathItem({ item, index }: PathItemProps) {
     <Card className="hover:bg-gray-50 transition-colors cursor-pointer border-l-4 border-l-primary shadow-sm">
       <CardHeader>
         <div className="flex justify-between items-center">
-          <Badge
-            className="flex items-center gap-1"
-          >
+          <Badge className="flex items-center gap-1">
             {isLearnType ? (
               <BookOpen className="h-3 w-3" />
             ) : (
