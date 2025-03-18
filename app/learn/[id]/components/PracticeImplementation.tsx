@@ -5,6 +5,7 @@ import { PracticeItem } from "@/data/learning-path";
 import { PracticeInputComponent } from "./PracticeInputComponent";
 import { PracticeResultDisplay } from "./PracticeResultDisplay";
 import { EvaluationResponseType } from "@/app/api/evaluate/[practiceTaskId]/route";
+import { addLearningProgress } from "@/app/learn/page";
 
 interface PracticeImplementationProps {
   item: PracticeItem;
@@ -78,6 +79,10 @@ export function PracticeImplementation({ item }: PracticeImplementationProps) {
                 setProgress(null);
                 setResult(eventData.result);
                 setLoading(false);
+                
+                if (eventData.result.correct && eventData.result.performant) {
+                  addLearningProgress(item.id);
+                }
               } else if (eventData.type === "progress") {
                 setProgress({
                   value: eventData.progress || 0,

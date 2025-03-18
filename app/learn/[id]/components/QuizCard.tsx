@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { learningPath, LearnItem } from "@/data/learning-path";
+import { addLearningProgress } from "@/app/learn/page";
 
 type QuizState = "start" | "question" | "feedback" | "results";
 
@@ -87,6 +88,9 @@ export default function QuizCard({ id }: QuizCardProps) {
       setState("question");
     } else {
       setState("results");
+      if (correctAnswers === totalQuestions) {
+        addLearningProgress(id);
+      }
     }
   };
 
