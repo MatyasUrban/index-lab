@@ -2,7 +2,7 @@ import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { TopNavigation } from "@/components/top-navigation";
+import { TopNavigation } from "@/components/TopNavigation";
 
 const inter = Inter({ subsets: ["latin"] });
 
