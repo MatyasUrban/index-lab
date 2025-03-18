@@ -154,13 +154,19 @@ function AnalyzeContent() {
 
   useEffect(() => {
     const plan = searchParams.get("plan");
+    
     if (plan) {
       try {
-        const decodedPlan = decodeURIComponent(plan);
+        // Decode using base64 only
+        const decodedPlan = atob(plan);
+        console.log("Decoded from base64:", decodedPlan);
+        
+        // Parse the JSON
         JSON.parse(decodedPlan); // Validate JSON
         setPlanInput(decodedPlan);
       } catch (err) {
-        setError("Invalid JSON in URL parameter");
+        console.error("Error handling plan:", err);
+        setError("Invalid data format. Please check the execution plan.");
       }
     }
   }, [searchParams]);

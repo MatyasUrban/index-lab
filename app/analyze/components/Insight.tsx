@@ -97,10 +97,13 @@ export const learningConcepts: LearningConcepts = {
     description:
       "An optimization of the Sort node that exploits existing partial ordering in the input data. It sorts smaller groups of rows incrementally, reducing memory usage and improving performance when the input is already partially sorted by leading columns of the sort key.",
   },
+  "Bitmap Index Scan": {
+    title: "Bitmap Index Scan",
+    description: "Part 1 of 2-phase table access method. Creates a bitmap of matching row locations using one or more indexes. Efficiently identifies qualifying rows without fetching data. Can combine results from multiple indexes using BitmapAnd or BitmapOr operations. Passes the resulting bitmap to the Bitmap Heap Scan. Particularly effective for queries retrieving moderate number of rows from large tables. Followed by Bitmap Heap Scan node handling part 2.",
+  },
   "Bitmap Heap Scan": {
     title: "Bitmap Heap Scan",
-    description:
-      "A two-phase table access method that first creates a bitmap of matching row locations using one or more indexes, then fetches the actual rows from the table. It’s often more efficient than a simple index scan when a moderate number of rows need to be retrieved from a large table.",
+    description: "Part 2 of 2-phase table access method. Preceded by Bitmap Index Scan node. Uses bitmap from Bitmap Index Scan to fetch actual rows from the table. Reads table blocks sequentially, reducing random I/O. Handles exact or lossy bitmaps based on available memory. For lossy bitmaps, rechecks conditions on fetched pages.",
   },
   Aggregate: {
     title: "Aggregate",

@@ -283,7 +283,7 @@ async function evaluateWithUpdates(
         result.usersTime = getExecutionTime(userExplain);
         // Store the full plan for visualization
         result.usersPlan = userExplain.rows[0]["QUERY PLAN"];
-
+        console.log(JSON.stringify(result.usersPlan))
         // Run explain with TEXT format for better readability
         const explainTextQuery = `EXPLAIN (FORMAT TEXT) ${selectQuery}`;
         const userExplainText = await client.query(explainTextQuery);
@@ -333,10 +333,8 @@ async function evaluateWithUpdates(
           result.usersTime !== undefined &&
           result.referenceTime !== undefined
         ) {
-          result.performant = result.usersTime < result.referenceTime * 1.5;
+          result.performant = result.usersTime < result.referenceTime * 2;
         }
-
-        console.log("Evaluation result:", JSON.stringify(result, null, 2));
 
         // Send final result
         await writer.write(
