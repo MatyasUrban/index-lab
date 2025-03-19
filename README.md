@@ -7,6 +7,7 @@
   - [Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
   - [Linux](https://docs.docker.com/desktop/setup/install/linux/)
 - Open Docker Desktop after installation.
+- Open Terminal (Linux/MacOS) or Command Promp / PowerShell (Windows)
 
 **1. Using the Latest Repository Version: [Reccomended]**
 
