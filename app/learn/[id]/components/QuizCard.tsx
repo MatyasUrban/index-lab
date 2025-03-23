@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { learningPath, LearnItem } from "@/data/learning-path";
-import { addLearningProgress } from "@/app/learn/page";
+import { addLearningProgress } from "@/app/learn/utils/AddLearningProgress";
 
 type QuizState = "start" | "question" | "feedback" | "results";
 

@@ -5,7 +5,7 @@ import { PracticeItem } from "@/data/learning-path";
 import { PracticeInput } from "./PracticeInput";
 import { PracticeResultDisplay } from "./PracticeResultDisplay";
 import { EvaluationResponseType } from "@/app/api/evaluate/[practiceTaskId]/route";
-import { addLearningProgress } from "@/app/learn/page";
+import { addLearningProgress } from "@/app/learn/utils/AddLearningProgress";
 
 interface PracticeImplementationProps {
   item: PracticeItem;
