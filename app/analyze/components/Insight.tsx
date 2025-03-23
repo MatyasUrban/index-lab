@@ -57,6 +57,11 @@ export const learningConcepts: LearningConcepts = {
     description:
       "The actual time taken to execute the query and retrieve the results.",
   },
+  "Index Scan": {
+    title: "Index Scan",
+    description:
+      "An Index Scan uses an index to locate specific rows or a range of rows matching certain conditions. It first traverses the index to find matching entries, then fetches the corresponding table data. This method is efficient when retrieving a small subset of rows from a large table, as it avoids reading the entire table. However, it incurs higher per-row overhead compared to a sequential scan due to the additional step of checking the actual table data. Index Scans are particularly effective for queries with highly selective predicates, where few rows need to be retrieved."
+  },
   "Index Only Scan": {
     title: "Index Only Scan",
     description:
