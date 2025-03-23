@@ -7,27 +7,9 @@
   - [Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
   - [Linux](https://docs.docker.com/desktop/setup/install/linux/)
 - Open Docker Desktop after installation.
+- Open Terminal (Linux/MacOS) or Command Promp / PowerShell (Windows)
 
-**1. Using Prebuilt Images (from Docker Hub):**
-
-- Pull the necessary Docker images:
-
-  ```bash
-  docker pull matyasurban/pg-index-lab:app
-  docker pull matyasurban/pg-index-lab:db
-  ```
-
-- Download the `docker-compose.yaml` file from this repository's directory.
-- Navigate to the directory where you saved `docker-compose.yaml` in your terminal.
-- Run the following command:
-
-  ```bash
-  docker compose up
-  ```
-
-- Open your web browser and visit: `localhost:3000`
-
-**2. Using the Latest Repository Version:**
+**1. Using the Latest Repository Version: [Reccomended]**
 
 - Download this repository to your machine:
   - **If you have Git installed:**
@@ -42,6 +24,26 @@
     - Go to: `Code > Local > Download ZIP` on the GitHub repository page.
     - Unzip the downloaded archive.
 - Navigate to the downloaded repository's directory in your terminal.
+- Run the following command:
+
+  ```bash
+  docker compose up
+  ```
+  The process can take up to 5 minutes and will build images and instantiate containers per instructions in `docker-compose.yaml` (`Dockerfile.app` and `Dockerfile.db`).
+
+- Open your web browser and visit: `localhost:3000`
+
+**2. Using Prebuilt Images (from Docker Hub):**
+
+- Pull the necessary Docker images:
+
+  ```bash
+  docker pull matyasurban/pg-index-lab:app
+  docker pull matyasurban/pg-index-lab:db
+  ```
+
+- Download the `docker-compose.yaml` file from this repository's directory.
+- Navigate to the directory where you saved `docker-compose.yaml` in your terminal.
 - Run the following command:
 
   ```bash
