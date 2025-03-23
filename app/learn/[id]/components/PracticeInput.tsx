@@ -10,7 +10,7 @@ interface PracticeInputComponentProps {
   loading: boolean;
 }
 
-export function PracticeInputComponent({
+export function PracticeInput({
   onSubmitAction,
   loading,
 }: PracticeInputComponentProps) {

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { PracticeItem } from "@/data/learning-path";
-import { PracticeInputComponent } from "./PracticeInputComponent";
+import { PracticeInput } from "./PracticeInput";
 import { PracticeResultDisplay } from "./PracticeResultDisplay";
 import { EvaluationResponseType } from "@/app/api/evaluate/[practiceTaskId]/route";
 import { addLearningProgress } from "@/app/learn/page";
@@ -106,7 +106,7 @@ export function PracticeImplementation({ item }: PracticeImplementationProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <PracticeInputComponent onSubmitAction={handleSubmit} loading={loading} />
+      <PracticeInput onSubmitAction={handleSubmit} loading={loading} />
       <PracticeResultDisplay
         loading={loading}
         submitted={submitted}

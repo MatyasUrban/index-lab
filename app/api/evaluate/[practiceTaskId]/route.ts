@@ -181,19 +181,85 @@ async function evaluateWithUpdates(
       const client = await pool.connect();
 
       try {
-        // Step 1: Running reference preparation queries
+        // Step 1: Running user's preparation queries
+        await writer.write(
+          encoder.encode(
+            `data: ${JSON.stringify({
+              type: "progress",
+              step: "runningUserPreparation",
+              progress: 15,
+              message: "Running your preparation queries...",
+            })}\n\n`,
+          ),
+        );
+        await delay(500);
+
+        await client.query("BEGIN");
+        // Run user preparation query if it exists
+        if (preparationQuery && preparationQuery.trim() !== "") {
+          await client.query(preparationQuery);
+        }
+
+        // Step 2: Running user's select queries
+        await writer.write(
+          encoder.encode(
+            `data: ${JSON.stringify({
+              type: "progress",
+              step: "runningUserSelect",
+              progress: 30,
+              message: "Running your select queries...",
+            })}\n\n`,
+          ),
+        );
+        await delay(500);
+
+        const usersQueryResult = await client.query(selectQuery);
+        result.usersRows = usersQueryResult.rows;
+
+        // Run explain analyze on user select query
+        const explainUserQuery = `EXPLAIN (ANALYZE, FORMAT JSON) ${selectQuery}`;
+        const userExplain = await client.query(explainUserQuery);
+        result.usersTime = getExecutionTime(userExplain);
+        // Store the full plan for visualization
+        result.usersPlan = userExplain.rows[0]["QUERY PLAN"];
+        
+        // Run explain with TEXT format for better readability
+        const explainTextQuery = `EXPLAIN (FORMAT TEXT) ${selectQuery}`;
+        const userExplainText = await client.query(explainTextQuery);
+        // Combine all rows of the QUERY PLAN into a single string
+        result.usersExplain = userExplainText.rows
+          .map((row) => row["QUERY PLAN"])
+          .join("\n");
+
+        // Step 3: Restoring the database
+        await writer.write(
+          encoder.encode(
+            `data: ${JSON.stringify({
+              type: "progress",
+              step: "restoringDatabase1",
+              progress: 45,
+              message: "Restoring database state...",
+            })}\n\n`,
+          ),
+        );
+        await delay(500);
+
+        await client.query("ROLLBACK");
+
+        // Step 4: Running reference preparation queries
         await writer.write(
           encoder.encode(
             `data: ${JSON.stringify({
               type: "progress",
               step: "runningReferencePreparation",
-              progress: 0,
+              progress: 60,
               message: "Running reference preparation queries...",
             })}\n\n`,
           ),
         );
         await delay(500);
 
+        // Run reference solution
         await client.query("BEGIN");
         if (
           referenceSolution.preparationQuery &&
@@ -202,13 +268,13 @@ async function evaluateWithUpdates(
           await client.query(referenceSolution.preparationQuery);
         }
 
-        // Step 2: Running reference select queries
+        // Step 5: Running reference select queries
         await writer.write(
           encoder.encode(
             `data: ${JSON.stringify({
               type: "progress",
               step: "runningReferenceSelect",
-              progress: 15,
+              progress: 75,
               message: "Running reference select queries...",
             })}\n\n`,
           ),
@@ -225,80 +291,13 @@ async function evaluateWithUpdates(
         const referenceExplain = await client.query(explainReferenceQuery);
         result.referenceTime = getExecutionTime(referenceExplain);
 
-        // Step 3: Restoring the database
-        await writer.write(
-          encoder.encode(
-            `data: ${JSON.stringify({
-              type: "progress",
-              step: "restoringDatabase1",
-              progress: 30,
-              message: "Restoring database state...",
-            })}\n\n`,
-          ),
-        );
-        await delay(500);
-
-        await client.query("ROLLBACK");
-
-        // Step 4: Running user's preparation queries
-        await writer.write(
-          encoder.encode(
-            `data: ${JSON.stringify({
-              type: "progress",
-              step: "runningUserPreparation",
-              progress: 45,
-              message: "Running your preparation queries...",
-            })}\n\n`,
-          ),
-        );
-        await delay(500);
-
-        // Second transaction: Run user solution
-        await client.query("BEGIN");
-
-        // Run user preparation query if it exists
-        if (preparationQuery && preparationQuery.trim() !== "") {
-          await client.query(preparationQuery);
-        }
-
-        // Step 5: Running user's select queries
-        await writer.write(
-          encoder.encode(
-            `data: ${JSON.stringify({
-              type: "progress",
-              step: "runningUserSelect",
-              progress: 60,
-              message: "Running your select queries...",
-            })}\n\n`,
-          ),
-        );
-        await delay(500);
-
-        const usersQueryResult = await client.query(selectQuery);
-        result.usersRows = usersQueryResult.rows;
-
-        // Run explain analyze on user select query
-        const explainUserQuery = `EXPLAIN (ANALYZE, FORMAT JSON) ${selectQuery}`;
-        const userExplain = await client.query(explainUserQuery);
-        result.usersTime = getExecutionTime(userExplain);
-        // Store the full plan for visualization
-        result.usersPlan = userExplain.rows[0]["QUERY PLAN"];
-        console.log(JSON.stringify(result.usersPlan))
-        // Run explain with TEXT format for better readability
-        const explainTextQuery = `EXPLAIN (FORMAT TEXT) ${selectQuery}`;
-        const userExplainText = await client.query(explainTextQuery);
-        // Combine all rows of the QUERY PLAN into a single string
-        result.usersExplain = userExplainText.rows
-          .map((row) => row["QUERY PLAN"])
-          .join("\n");
-
         // Step 6: Restoring the database
         await writer.write(
           encoder.encode(
             `data: ${JSON.stringify({
               type: "progress",
               step: "restoringDatabase2",
-              progress: 75,
+              progress: 85,
               message: "Restoring database state...",
             })}\n\n`,
           ),
@@ -327,7 +326,7 @@ async function evaluateWithUpdates(
           referenceSet.size === userSet.size &&
           [...referenceSet].every((item) => userSet.has(item));
 
-        // Check performance (user's time should be less than 1.5x reference time)
+        // Check performance (user's time should be less than 2x reference time)
         if (
           result.correct &&
           result.usersTime !== undefined &&
