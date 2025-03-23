@@ -33,7 +33,7 @@ export function PracticePlanButtons({
             console.log("Original usersPlan:", usersPlan);
             const stringified = JSON.stringify(usersPlan);
             console.log("After stringify:", stringified);
-            
+
             const base64Plan = btoa(stringified);
             window.open(`/analyze?plan=${base64Plan}`, "_blank");
           }

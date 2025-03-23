@@ -79,7 +79,7 @@ export function PracticeImplementation({ item }: PracticeImplementationProps) {
                 setProgress(null);
                 setResult(eventData.result);
                 setLoading(false);
-                
+
                 if (eventData.result.correct && eventData.result.performant) {
                   addLearningProgress(item.id);
                 }

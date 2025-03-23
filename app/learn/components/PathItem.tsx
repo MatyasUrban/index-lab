@@ -22,7 +22,9 @@ export function PathItem({ item, index, isCompleted = false }: PathItemProps) {
   const isLearnType = item.type === "learn";
 
   return (
-    <Card className={`hover:bg-gray-50 transition-colors cursor-pointer border-l-4 border-l-primary shadow-sm ${isCompleted ? 'bg-green-50' : ''}`}>
+    <Card
+      className={`hover:bg-gray-50 transition-colors cursor-pointer border-l-4 border-l-primary shadow-sm ${isCompleted ? "bg-green-50" : ""}`}
+    >
       <CardHeader>
         <div className="flex justify-between items-center">
           <Badge className="flex items-center gap-1">

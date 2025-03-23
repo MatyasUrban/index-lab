@@ -10,7 +10,7 @@ import { useEffect, useState } from "react";
 export function addLearningProgress(id: number): void {
   const storedProgress = localStorage.getItem("learningProgress");
   let progressArray: number[] = [];
-  
+
   if (storedProgress) {
     try {
       const parsedProgress = JSON.parse(storedProgress);
@@ -21,7 +21,7 @@ export function addLearningProgress(id: number): void {
       console.error("Failed to parse learning progress", e);
     }
   }
-  
+
   if (!progressArray.includes(id)) {
     progressArray.push(id);
     localStorage.setItem("learningProgress", JSON.stringify(progressArray));
@@ -30,7 +30,7 @@ export function addLearningProgress(id: number): void {
 
 export default function LearnPage() {
   const [completedIds, setCompletedIds] = useState<number[]>([]);
-  
+
   useEffect(() => {
     const storedProgress = localStorage.getItem("learningProgress");
     if (storedProgress) {
@@ -44,11 +44,14 @@ export default function LearnPage() {
       }
     }
   }, []);
-  
+
   const totalItems = learningPath.length;
-  const completedItems = learningPath.filter(item => completedIds.includes(item.id)).length;
-  const progressPercentage = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
-  
+  const completedItems = learningPath.filter((item) =>
+    completedIds.includes(item.id),
+  ).length;
+  const progressPercentage =
+    totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
+
   const resetProgress = () => {
     localStorage.removeItem("learningProgress");
     setCompletedIds([]);
@@ -60,15 +63,17 @@ export default function LearnPage() {
       <p className="mb-8">
         Follow this structured path to master PostgreSQL indexing.
       </p>
-      
+
       <div className="mb-8">
         <div className="text-sm font-medium mb-2">Learning Progress</div>
         <Progress value={progressPercentage} className="h-2 mb-2" />
         <div className="flex justify-between items-center mt-1">
-          <span className="text-sm text-gray-600">{completedItems} of {totalItems} completed</span>
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <span className="text-sm text-gray-600">
+            {completedItems} of {totalItems} completed
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={resetProgress}
             className="text-xs"
           >
@@ -86,10 +91,10 @@ export default function LearnPage() {
             )}
 
             <Link href={`/learn/${item.id}`}>
-              <PathItem 
-                item={item} 
-                index={index} 
-                isCompleted={completedIds.includes(item.id)} 
+              <PathItem
+                item={item}
+                index={index}
+                isCompleted={completedIds.includes(item.id)}
               />
             </Link>
           </div>

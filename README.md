@@ -29,6 +29,7 @@
   ```bash
   docker compose up
   ```
+
   The process can take up to 5 minutes and will build images and instantiate containers per instructions in `docker-compose.yaml` (`Dockerfile.app` and `Dockerfile.db`).
 
 - Open your web browser and visit: `localhost:3000`

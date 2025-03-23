@@ -222,7 +222,7 @@ async function evaluateWithUpdates(
         result.usersTime = getExecutionTime(userExplain);
         // Store the full plan for visualization
         result.usersPlan = userExplain.rows[0]["QUERY PLAN"];
-        
+
         // Run explain with TEXT format for better readability
         const explainTextQuery = `EXPLAIN (FORMAT TEXT) ${selectQuery}`;
         const userExplainText = await client.query(explainTextQuery);
