@@ -11,8 +11,6 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./1_init_schema.sql:/docker-entrypoint-initdb.d/1_init_schema.sql
-      - ./2_init_data.sql.gz:/docker-entrypoint-initdb.d/2_init_data.sql.gz
       - postgres_data:/var/lib/postgresql/data
   app:
     image: matyasurban/pg-index-lab:app
