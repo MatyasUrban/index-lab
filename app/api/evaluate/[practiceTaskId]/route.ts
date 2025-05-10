@@ -16,9 +16,9 @@ const referenceSolutions: Record<
   },
   "5": {
     preparationQuery:
-      "CREATE INDEX idx_dept_emp_from_date ON department_employee (from_date);",
+      "CREATE INDEX idx_employee_hire_date ON employee (hire_date);",
     selectQuery:
-      "SELECT d.dept_name, de.employee_id, de.from_date, de.first_name, de.last_name FROM department d LEFT JOIN LATERAL (SELECT employee_id, from_date, first_name, last_name FROM department_employee JOIN employee e ON department_employee.employee_id = e.id WHERE department_id = d.id ORDER BY from_date LIMIT 1) de ON TRUE;",
+      "SELECT e.hire_date, e.first_name, e.last_name, d.dept_name FROM employee AS e JOIN department_employee AS de ON de.employee_id = e.id AND de.from_date = e.hire_date JOIN department AS d ON d.id = de.department_id WHERE e.hire_date BETWEEN '1999-12-31' AND '2000-01-01';",
   },
   "7": {
     preparationQuery:

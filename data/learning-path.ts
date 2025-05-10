@@ -174,16 +174,14 @@ export const learningPath: LearningItem[] = [
   {
     type: "practice",
     id: 5,
-    title: "Challenge 2: Query Pioneering Department Members",
+    title: "Challenge 2: Query Millennial Joiners by Department",
     description: "Apply what you learned about basic indexing",
     hints: [
-      "You'll need to combine information from the department, department_employee, and employee tables. Think about how these tables are related through their foreign keys.  Start by considering how you'd get all employees for all departments, then we'll narrow it down.",
-      "The tricky part is that you need exactly one employee per department – the one who joined earliest.  How would you normally find the minimum value of something (like from_date) within a group?",
-      "Since we're looking for the earliest from_date, think about how an index on the department_employee.from_date column could make that search much faster.  Why is an index helpful when looking for minimum or maximum values, or when ordering data?",
-      "One way to get just the earliest employee is to somehow filter the results within each department.  Could you use a subquery to find the earliest from_date for each department? Think about how you might relate that subquery back to the main query.",
-      "Imagine you could run a separate, small query for each department to find its earliest employee. This smaller query would need to 'know' which department it's currently looking at. There are ways in SQL to connect an inner query to the outer query's current row. Explore correlated subqueries; this is a key.",
-      "If you could get the earliest from_date for each department in a separate query (or subquery), how would you then join that back to the employee and department tables to get the full employee details? Think about different types of joins and which one guarantees you'll get all departments, even if there's an issue with the subquery (though there shouldn't be in this case).",
-      "PostgreSQL has a feature called LATERAL joins that's designed for exactly this kind of situation – running a subquery that depends on the current row of the outer query. If you're using a LEFT JOIN, combining it with LATERAL might be the solution. Consider ON TRUE for including all the departments.",
+      "Which tables record an employee’s basic info and their department history?",
+      "How would you link an employee to the department they were in on their hire date?",
+      "What extra JOIN condition ensures you match `hire_date` to `from_date`?",
+      "How do you filter for dates exactly on ’1999-12-31’ or ’2000-01-01’? Lookup BETWEEN x AND y syntax.",
+      "Why might an index on `employee.hire_date` speed up that date-range filter?",
     ],
   },
   {
