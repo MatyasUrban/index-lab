@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Practice Challenge Component', () => {
+test.describe('PRACTICE', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:3000/');
     await expect(page.getByRole('link', { name: 'Start Learning' })).toBeVisible();

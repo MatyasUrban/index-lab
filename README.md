@@ -36,13 +36,6 @@
 
 **2. Using Prebuilt Images (from Docker Hub):**
 
-- Pull the necessary Docker images:
-
-  ```bash
-  docker pull matyasurban/pg-index-lab:app
-  docker pull matyasurban/pg-index-lab:db
-  ```
-
 - Download the `docker-compose.yaml` file from this repository's directory.
 - Navigate to the directory where you saved `docker-compose.yaml` in your terminal.
 - Run the following command:
@@ -51,6 +44,7 @@
   docker compose up
   ```
 
+- Wait for the images to download and containers to be created
 - Open your web browser and visit: `localhost:3000`
 
 ## Dataset

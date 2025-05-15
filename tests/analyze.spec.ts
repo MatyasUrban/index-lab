@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 
-test.describe('Analyze Plan Component', () => {
+test.describe('ANALYZE', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to analyze page
     await page.goto('http://localhost:3000/');
