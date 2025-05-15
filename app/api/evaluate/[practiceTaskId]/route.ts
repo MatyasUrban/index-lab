@@ -192,7 +192,7 @@ async function evaluateWithUpdates(
             })}\n\n`,
           ),
         );
-        await delay(500);
+        await delay(100);
 
         await client.query("BEGIN");
         // Run user preparation query if it exists
@@ -211,7 +211,7 @@ async function evaluateWithUpdates(
             })}\n\n`,
           ),
         );
-        await delay(500);
+        await delay(100);
 
         const usersQueryResult = await client.query(selectQuery);
         result.usersRows = usersQueryResult.rows;
@@ -242,7 +242,7 @@ async function evaluateWithUpdates(
             })}\n\n`,
           ),
         );
-        await delay(500);
+        await delay(100);
 
         await client.query("ROLLBACK");
 
@@ -257,7 +257,7 @@ async function evaluateWithUpdates(
             })}\n\n`,
           ),
         );
-        await delay(500);
+        await delay(100);
 
         // Run reference solution
         await client.query("BEGIN");
@@ -279,7 +279,7 @@ async function evaluateWithUpdates(
             })}\n\n`,
           ),
         );
-        await delay(500);
+        await delay(100);
 
         const referenceQueryResult = await client.query(
           referenceSolution.selectQuery,
@@ -302,7 +302,7 @@ async function evaluateWithUpdates(
             })}\n\n`,
           ),
         );
-        await delay(500);
+        await delay(100);
 
         await client.query("ROLLBACK");
 
@@ -317,7 +317,7 @@ async function evaluateWithUpdates(
             })}\n\n`,
           ),
         );
-        await delay(500);
+        await delay(100);
 
         // Compare results using sets
         const referenceSet = resultToSet(referenceQueryResult);
