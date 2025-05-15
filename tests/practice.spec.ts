@@ -2,14 +2,13 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Practice Challenge Component', () => {
   test.beforeEach(async ({ page }) => {
-    // Initial navigation to practice challenge
     await page.goto('http://localhost:3000/');
     await expect(page.getByRole('link', { name: 'Start Learning' })).toBeVisible();
     await page.getByRole('link', { name: 'Start Learning' }).click();
     await page.waitForURL('**/learn');
     await expect(page.getByRole('link', { name: 'Practice 5 Challenge 2: Query' })).toBeVisible();
-    await page.getByRole('link', { name: 'Practice 5 Challenge 2: Query' }).click();
-    await page.waitForURL('**/learn/5');
+    await page.getByRole('link', { name: 'Practice 16 Challenge 8:' }).click();
+    await page.waitForURL('**/learn/16');
     await expect(page.getByText('Practice')).toBeVisible();
   });
 
@@ -17,9 +16,7 @@ test.describe('Practice Challenge Component', () => {
     test('should show failed evaluation when too slow', async ({ page }) => {
       // Enter initial query
       await page.getByRole('textbox', { name: 'Select Query' }).click();
-      await page.getByRole('textbox', { name: 'Select Query' }).fill(
-        `SELECT e.hire_date, e.first_name, e.last_name, d.dept_name FROM employee AS e JOIN department_employee AS de ON de.employee_id = e.id AND de.from_date = e.hire_date JOIN department AS d ON d.id = de.department_id WHERE e.hire_date BETWEEN '1999-12-31' AND '2000-01-01';`
-      );
+      await page.getByRole('textbox', { name: 'Select Query' }).fill(selectQuery);
       await page.getByRole('button', { name: 'Evaluate' }).click();
 
       // Expect failure
@@ -34,13 +31,9 @@ test.describe('Practice Challenge Component', () => {
       // Re-enter and prepare query
       await page.getByRole('textbox', { name: 'Select Query' }).click();
       await page.getByRole('textbox', { name: 'Select Query' }).press('ControlOrMeta+a');
-      await page.getByRole('textbox', { name: 'Select Query' }).fill(
-        `SELECT e.hire_date, e.first_name, e.last_name, d.dept_name FROM employee AS e JOIN department_employee AS de ON de.employee_id = e.id AND de.from_date = e.hire_date JOIN department AS d ON d.id = de.department_id WHERE e.hire_date BETWEEN '1999-12-31' AND '2000-01-01';`
-      );
+      await page.getByRole('textbox', { name: 'Select Query' }).fill(selectQuery);
       await page.getByRole('textbox', { name: 'Preparation Query' }).click();
-      await page.getByRole('textbox', { name: 'Preparation Query' }).fill(
-        `CREATE INDEX idx_employee_hire_date ON employee (hire_date);`
-      );
+      await page.getByRole('textbox', { name: 'Preparation Query' }).fill(preparationQuery);
       await page.getByRole('button', { name: 'Evaluate' }).click();
 
       // Expect success
@@ -50,3 +43,6 @@ test.describe('Practice Challenge Component', () => {
     });
   });
 });
+
+const preparationQuery = 'CREATE INDEX IF NOT EXISTS idx_employee_last_name_gin ON employee USING gin (last_name gin_trgm_ops);';
+const selectQuery = 'SELECT first_name, last_name, birth_date FROM employee WHERE last_name LIKE \'%ith%\' AND hire_date = \'1989-06-14\' ORDER BY last_name, first_name;';

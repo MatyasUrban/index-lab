@@ -39,7 +39,6 @@ test.describe('Analyze Plan Component', () => {
   });
 });
 
-
 const plan = [{
   "Plan": {
     "Node Type": "Nested Loop",
