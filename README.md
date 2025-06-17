@@ -9,7 +9,21 @@
 - Open Docker Desktop after installation.
 - Open Terminal (Linux/MacOS) or Command Promp / PowerShell (Windows)
 
-**1. Using the Latest Repository Version: [Reccomended]**
+- 
+**1. Using Prebuilt Images (from Docker Hub): [Fastest]**
+
+- Download the `docker-compose.yaml` file from this repository's directory.
+- Navigate to the directory where you saved `docker-compose.yaml` in your terminal.
+- Run the following command:
+
+  ```bash
+  docker compose up
+  ```
+
+- Wait for the images to download and containers to be created
+- Open your web browser and visit: `localhost:3000`
+
+**2. Using the Latest Repository Version: [Reccomended]**
 
 - Download this repository to your machine:
   - **If you have Git installed:**
@@ -32,19 +46,6 @@
 
   The process can take up to 5 minutes and will build images and instantiate containers per instructions in `docker-compose.yaml` (`Dockerfile.app` and `Dockerfile.db`).
 
-- Open your web browser and visit: `localhost:3000`
-
-**2. Using Prebuilt Images (from Docker Hub):**
-
-- Download the `docker-compose.yaml` file from this repository's directory.
-- Navigate to the directory where you saved `docker-compose.yaml` in your terminal.
-- Run the following command:
-
-  ```bash
-  docker compose up
-  ```
-
-- Wait for the images to download and containers to be created
 - Open your web browser and visit: `localhost:3000`
 
 ## Dataset
