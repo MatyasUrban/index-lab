@@ -43,7 +43,6 @@
   ```bash
   docker compose up
   ```
-
   The process can take up to 5 minutes and will build images and instantiate containers per instructions in `docker-compose.yaml` (`Dockerfile.app` and `Dockerfile.db`).
 
 - Open your web browser and visit: `localhost:3000`
@@ -81,6 +80,10 @@ Instead of using PG dump format, I created simplified initialization files by:
 3. Moving employee data copy to the beginning to maintain data integrity from the start, avoiding initialization failures and eliminating the need to set sequence numbers after data copy
 
 This approach avoids complex PG dumps while creating a simple script conforming to modern PostgreSQL with strong data integrity and built-in verification of dataset integrity.
+
+Here is the resulting schema:
+![Screenshot 2025-06-18 at 1 17 17](https://github.com/user-attachments/assets/ce9eeac8-9328-4ade-9689-07bda9b2e76e)
+
 
 ### Disclaimer
 
